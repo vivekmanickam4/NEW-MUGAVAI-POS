@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<h1>Dashboard</h1>
+
+<a href="products.html">Products</a><br>
+<a href="billing.html">Billing</a><br>
+
+<button onclick="logout()">Logout</button>
+
+<script>
+function logout(){
+  localStorage.clear();
+  location.href="index.html";
+}
+</script>
+
+</body>
+</html>

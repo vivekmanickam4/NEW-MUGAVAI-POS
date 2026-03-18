@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<h1>Billing</h1>
+
+<input id="code" placeholder="Scan barcode">
+<input id="discount" value="0">
+
+<button onclick="addItem()">Add</button>
+
+<table border="1" id="bill"></table>
+
+<h2>Total ₹<span id="total">0</span></h2>
+
+<button onclick="printBill()">Print</button>
+
+<script type="module" src="js/billing.js"></script>
+
+</body>
+</html>
