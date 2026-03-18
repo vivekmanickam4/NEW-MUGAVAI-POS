@@ -1,6 +1,7 @@
 // Firebase imports
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
-import { getFirestore, addDoc, collection } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js";
+import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js";
+import { getFirestore, addDoc, collection } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
 
 // Config
 const firebaseConfig = {
@@ -16,8 +17,24 @@ const firebaseConfig = {
 // Init
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
+const db = getFirestore(app);
 
-// ✅ ADD PRODUCT FUNCTION
+// LOGIN
+window.login = function () {
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("password").value;
+
+  signInWithEmailAndPassword(auth, email, password)
+    .then(() => {
+      alert("Login successful");
+      window.location.href = "./dashboard.html";
+    })
+    .catch((error) => {
+      alert(error.message);
+    });
+};
+
+// ADD PRODUCT
 window.addProduct = async function () {
   const name = document.getElementById("productName").value;
   const price = document.getElementById("productPrice").value;
@@ -33,7 +50,7 @@ window.addProduct = async function () {
       price: Number(price)
     });
 
-    alert("Product added successfully");
+    alert("Product added ✅");
 
     // clear fields
     document.getElementById("productName").value = "";
