@@ -60,6 +60,51 @@ window.addProduct = async function () {
   alert("Product added ✅");
   loadProducts();
 };
+
+// 🔥 ADD THIS BELOW
+window.loadProducts = async function () {
+  const list = document.getElementById("productList");
+  list.innerHTML = "";
+
+  const querySnapshot = await getDocs(collection(db, "products"));
+
+  querySnapshot.forEach((docItem) => {
+    const data = docItem.data();
+
+    const li = document.createElement("li");
+    li.innerHTML = `
+      ${data.name} | ₹${data.price} | GST: ${data.gst}%
+      <button onclick="deleteProduct('${docItem.id}')">Delete</button>
+      <button onclick="addToBill('${docItem.id}','${data.name}',${data.price},${data.gst})">Add</button>
+    `;
+
+    list.appendChild(li);
+  });
+};
+//Delete Product
+window.deleteProduct = async function (id) {
+  await deleteDoc(doc(db, "products", id));
+  alert("Deleted");
+  loadProducts();
+};
+
+let total = 0;
+
+window.addToBill = function (id, name, price, gst) {
+  const billList = document.getElementById("billList");
+
+  const gstAmount = (price * gst) / 100;
+  const finalPrice = price + gstAmount;
+
+  total += finalPrice;
+
+  const li = document.createElement("li");
+  li.innerHTML = `${name} - ₹${finalPrice.toFixed(2)}`;
+
+  billList.appendChild(li);
+
+  document.getElementById("total").innerText = total.toFixed(2);
+};
     // clear fields
     document.getElementById("productName").value = "";
     document.getElementById("productPrice").value = "";
