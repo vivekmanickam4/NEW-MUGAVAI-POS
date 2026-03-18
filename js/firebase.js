@@ -25,7 +25,7 @@ window.login = function () {
   signInWithEmailAndPassword(auth, email, password)
     .then(() => {
       alert("Login successful");
-      window.location.href = "dashboard.html";
+      window.location.href = "./dashboard.html";
     })
     .catch((error) => {
       alert(error.message);
