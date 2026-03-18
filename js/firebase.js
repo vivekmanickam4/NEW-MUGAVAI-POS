@@ -17,6 +17,33 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 
+// ✅ ADD PRODUCT FUNCTION
+window.addProduct = async function () {
+  const name = document.getElementById("productName").value;
+  const price = document.getElementById("productPrice").value;
+
+  if (!name || !price) {
+    alert("Enter all fields");
+    return;
+  }
+
+  try {
+    await addDoc(collection(db, "products"), {
+      name: name,
+      price: Number(price)
+    });
+
+    alert("Product added successfully");
+
+    // clear fields
+    document.getElementById("productName").value = "";
+    document.getElementById("productPrice").value = "";
+
+  } catch (error) {
+    alert(error.message);
+  }
+};
+
 // Login function
 window.login = function () {
   const email = document.getElementById("email").value;
