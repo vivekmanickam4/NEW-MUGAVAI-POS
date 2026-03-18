@@ -4,15 +4,43 @@
 
 <h1>Dashboard</h1>
 
-<a href="products.html">Products</a><br>
-<a href="billing.html">Billing</a><br>
-<h2>Add Product</h2>
+<!-- Menu -->
+<a href="#" onclick="showSection('products')">Products</a> |
+<a href="#" onclick="showSection('billing')">Billing</a>
 
-<input type="text" id="productName" placeholder="Product Name">
-<input type="number" id="productPrice" placeholder="Price">
+<hr>
 
-<button onclick="addProduct()">Add Product</button>
+<!-- PRODUCTS SECTION -->
+<div id="productsSection" style="display:none;">
+  <h2>Add Product</h2>
 
+  <input type="text" id="productName" placeholder="Product Name">
+  <input type="number" id="productPrice" placeholder="Price">
+
+  <button onclick="addProduct()">Add Product</button>
+</div>
+
+<!-- BILLING SECTION -->
+<div id="billingSection" style="display:none;">
+  <h2>Billing Screen</h2>
+  <p>Coming soon...</p>
+</div>
+
+<!-- Script -->
+<script type="module" src="js/firebase.js"></script>
+
+<script>
+function showSection(section) {
+  document.getElementById("productsSection").style.display = "none";
+  document.getElementById("billingSection").style.display = "none";
+
+  if (section === "products") {
+    document.getElementById("productsSection").style.display = "block";
+  } else if (section === "billing") {
+    document.getElementById("billingSection").style.display = "block";
+  }
+}
+</script>
   
 <button onclick="logout()">Logout</button>
 
