@@ -1,17 +1,14 @@
 // Firebase imports
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js";
-import { getFirestore, addDoc, collection } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
+import { getFirestore, addDoc, collection, getDocs, deleteDoc, doc } 
+from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
 
 // Config
 const firebaseConfig = {
   apiKey: "AIzaSyDU-_8EWlVyfmjjMS3hr2s2Wbs7Cmpa0ZY",
   authDomain: "fir-console-55101.firebaseapp.com",
   projectId: "fir-console-55101",
-  storageBucket: "fir-console-55101.firebasestorage.app",
-  messagingSenderId: "344044870689",
-  appId: "1:344044870689:web:b69e6822e3deecc07fd760",
-  measurementId: "G-2CMNXN1T9R"
 };
 
 // Init
@@ -35,10 +32,6 @@ window.login = function () {
 };
 
 // ADD PRODUCT
-import { getFirestore, addDoc, collection, getDocs, deleteDoc, doc } 
-from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
-
-// ADD PRODUCT
 window.addProduct = async function () {
   const barcode = document.getElementById("barcode").value;
   const name = document.getElementById("productName").value;
@@ -58,10 +51,17 @@ window.addProduct = async function () {
   });
 
   alert("Product added ✅");
+
+  // clear fields
+  document.getElementById("barcode").value = "";
+  document.getElementById("productName").value = "";
+  document.getElementById("productPrice").value = "";
+  document.getElementById("gst").value = "";
+
   loadProducts();
 };
 
-// 🔥 ADD THIS BELOW
+// LOAD PRODUCTS
 window.loadProducts = async function () {
   const list = document.getElementById("productList");
   list.innerHTML = "";
@@ -81,13 +81,15 @@ window.loadProducts = async function () {
     list.appendChild(li);
   });
 };
-//Delete Product
+
+// DELETE PRODUCT
 window.deleteProduct = async function (id) {
   await deleteDoc(doc(db, "products", id));
   alert("Deleted");
   loadProducts();
 };
 
+// BILLING
 let total = 0;
 
 window.addToBill = function (id, name, price, gst) {
@@ -104,28 +106,4 @@ window.addToBill = function (id, name, price, gst) {
   billList.appendChild(li);
 
   document.getElementById("total").innerText = total.toFixed(2);
-};
-    // clear fields
-    document.getElementById("productName").value = "";
-    document.getElementById("productPrice").value = "";
-
-  } catch (error) {
-    alert(error.message);
-  }
-};
-
-// Login function
-window.login = function () {
-  const email = document.getElementById("email").value;
-  const password = document.getElementById("password").value;
-
-  signInWithEmailAndPassword(auth, email, password)
-    .then(() => {
-      alert("Login successful");
-      console.log("Redirecting now..."); 
-      window.location.href = "./dashboard.html";
-    })
-    .catch((error) => {
-      alert(error.message);
-    });
 };
