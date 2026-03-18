@@ -35,23 +35,31 @@ window.login = function () {
 };
 
 // ADD PRODUCT
+import { getFirestore, addDoc, collection, getDocs, deleteDoc, doc } 
+from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
+
+// ADD PRODUCT
 window.addProduct = async function () {
+  const barcode = document.getElementById("barcode").value;
   const name = document.getElementById("productName").value;
   const price = document.getElementById("productPrice").value;
+  const gst = document.getElementById("gst").value;
 
-  if (!name || !price) {
-    alert("Enter all fields");
+  if (!barcode || !name || !price || !gst) {
+    alert("Fill all fields");
     return;
   }
 
-  try {
-    await addDoc(collection(db, "products"), {
-      name: name,
-      price: Number(price)
-    });
+  await addDoc(collection(db, "products"), {
+    barcode,
+    name,
+    price: Number(price),
+    gst: Number(gst)
+  });
 
-    alert("Product added ✅");
-
+  alert("Product added ✅");
+  loadProducts();
+};
     // clear fields
     document.getElementById("productName").value = "";
     document.getElementById("productPrice").value = "";
