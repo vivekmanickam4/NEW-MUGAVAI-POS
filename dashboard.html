@@ -14,10 +14,15 @@
 <div id="productsSection" style="display:none;">
   <h2>Add Product</h2>
 
+  <input type="text" id="barcode" placeholder="Barcode">
   <input type="text" id="productName" placeholder="Product Name">
   <input type="number" id="productPrice" placeholder="Price">
+  <input type="number" id="gst" placeholder="GST %">
 
   <button onclick="addProduct()">Add Product</button>
+
+  <h3>Product List</h3>
+  <ul id="productList"></ul>
 </div>
 
 <!-- BILLING SECTION -->
