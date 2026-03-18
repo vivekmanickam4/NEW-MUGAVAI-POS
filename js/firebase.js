@@ -28,5 +28,7 @@ window.login = function () {
     })
     .catch((error) => {
       alert(error.message);
+
+      window.location.href = "dashboard.html";
     });
 };
