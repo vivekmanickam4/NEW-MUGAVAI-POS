@@ -44,5 +44,16 @@ window.printBill=function(){
 }
 
 discount.onchange=update;
+window.downloadPDF = async function(){
+  const { jsPDF } = window.jspdf;
 
+  let invoice = document.getElementById("invoice");
+
+  let canvas = await html2canvas(invoice);
+  let img = canvas.toDataURL("image/png");
+
+  let pdf = new jsPDF();
+  pdf.addImage(img,"PNG",10,10);
+  pdf.save("invoice.pdf");
+}
 load();
