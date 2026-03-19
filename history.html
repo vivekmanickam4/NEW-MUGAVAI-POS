@@ -1,50 +1,28 @@
 <!DOCTYPE html>
 <html>
-  <head>
-  <title>History</title>
+
+<head>
+  <title>Bill History</title>
   <link rel="stylesheet" href="style.css">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
-<head>
-  <title>Bill History</title>
-</head>
+
 <body>
+
 <div style="text-align:right; margin:10px;">
   <button onclick="exportAll()">Export All Bills</button>
 </div>
-  window.exportAll = async function(){
 
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF();
-
-  const snap = await getDocs(collection(db,"bills"));
-
-  let y = 20;
-
-  doc.text("ALL BILL REPORT", 70, 10);
-
-  snap.forEach(d=>{
-    let b = d.data();
-
-    doc.text(`${b.invoiceNo} | ${b.customerName} | ₹${b.total}`, 10, y);
-    y += 10;
-  });
-
-  doc.save("All_Bills.pdf");
-};
 <h1>Bill History</h1>
 
-<table border="1" width="100%" id="historyTable" style="text-align:center; border-collapse:collapse;">
-  <tr>
-    <th>Invoice</th>
-    <th>Customer</th>
-    <th>Total</th>
-    <th>Action</th>
-  </tr>
+<table border="1" id="historyTable" style="text-align:center; border-collapse:collapse;">
 </table>
 
+<!-- JS -->
 <script type="module" src="./js/history.js"></script>
 
+<!-- PDF -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
 </body>
 </html>
