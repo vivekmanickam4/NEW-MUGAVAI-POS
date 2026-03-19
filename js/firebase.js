@@ -100,19 +100,89 @@ window.deleteProduct = async function (id) {
 
 // BILLING
 let total = 0;
+let billItems = [];
 
-window.addToBill = function (id, name, price, gst) {
-  const billList = document.getElementById("billList");
+window.addToBill = function (name, price, gst) {
+
+  const table = document.getElementById("billTable");
 
   const gstAmount = (price * gst) / 100;
   const finalPrice = price + gstAmount;
 
   total += finalPrice;
 
-  const li = document.createElement("li");
-  li.innerHTML = `${name} - ₹${finalPrice.toFixed(2)}`;
+  billItems.push({
+    name,
+    price,
+    gst,
+    total: finalPrice
+  });
 
-  billList.appendChild(li);
+  const row = `
+    <tr>
+      <td>${name}</td>
+      <td>₹${price}</td>
+      <td>${gst}%</td>
+      <td>₹${finalPrice.toFixed(2)}</td>
+    </tr>
+  `;
+
+  table.innerHTML += row;
 
   document.getElementById("total").innerText = total.toFixed(2);
+};
+
+//INVOICE NUMBER
+function generateInvoiceNo() {
+  return "INV-" + Date.now();
+}
+
+window.onload = function(){
+  if(document.getElementById("invNo")){
+    document.getElementById("invNo").innerText = generateInvoiceNo();
+  }
+};
+
+//SAVE BILL TO HISTORY
+import { addDoc } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
+
+window.saveBill = async function () {
+
+  const customerName = document.getElementById("customerName").value;
+
+  if (!customerName) {
+    alert("Enter customer name");
+    return;
+  }
+
+  await addDoc(collection(db, "bills"), {
+    invoiceNo: document.getElementById("invNo").innerText,
+    customerName,
+    items: billItems,
+    total,
+    createdAt: new Date()
+  });
+
+  alert("Bill Saved ✅");
+
+  // RESET BILL
+  document.getElementById("billTable").innerHTML = `
+    <tr>
+      <th>Product</th>
+      <th>Price ₹</th>
+      <th>GST %</th>
+      <th>Total ₹</th>
+    </tr>
+  `;
+  total = 0;
+  billItems = [];
+  document.getElementById("total").innerText = "0";
+};
+
+//PRINT BUTTON
+window.printInvoice = function () {
+  const content = document.getElementById("invoice").innerHTML;
+  const win = window.open();
+  win.document.write(content);
+  win.print();
 };
