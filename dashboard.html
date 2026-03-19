@@ -32,33 +32,6 @@
   <!-- ✅ THIS WAS MISSING -->
   <div id="productList"></div>
 </div>
-
-<!-- BILLING -->
-<div id="billingSection" style="display:none;">
-  <h2>Billing</h2>
-
-  <input id="customerName" placeholder="Customer Name">
-  <input id="barcodeInput" placeholder="Scan Barcode">
-
-  <div id="invoice" style="border:2px solid black; padding:20px;">
-    
-    <h3>Invoice: <span id="invNo"></span></h3>
-
-   <table border="1" width="100%" id="billTable" style="border-collapse:collapse; text-align:center;">
-  <tr>
-    <th>Name</th>
-    <th>Price</th>
-    <th>GST</th>
-    <th>Total</th>
-    <th>Action</th>
-  </tr>
-</table>
-
-    <h3>Total ₹<span id="total">0</span></h3>
-  </div>
-
-  <button onclick="saveBill()">Save</button>
-</div>
   
 <button onclick="logout()">Logout</button>
 
@@ -77,7 +50,7 @@ function logout(){
 }
 </script>
 
-<script type="module" src="js/firebase.js"></script>
+<script type="module" src="js/billing.js"></script>
 
 </body>
 </html>
