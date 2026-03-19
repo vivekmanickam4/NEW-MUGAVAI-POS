@@ -302,28 +302,3 @@ window.addEventListener("load", () => {
   });
 
 });
-
-//ADD PRODUCT TO BILL
-
-function addProductToBill(p) {
-
-  const table = document.getElementById("billTable");
-
-  const gstAmount = (p.price * p.gst) / 100;
-  const finalPrice = p.price + gstAmount;
-
-  total += finalPrice;
-
-  const row = `
-    <tr>
-      <td>${p.name}</td>
-      <td>₹${p.price}</td>
-      <td>${p.gst}%</td>
-      <td>₹${finalPrice.toFixed(2)}</td>
-    </tr>
-  `;
-
-  table.innerHTML += row;
-
-  document.getElementById("total").innerText = total.toFixed(2);
-}
