@@ -4,92 +4,73 @@
 
 <h1>Dashboard</h1>
 
-<!-- Menu -->
 <a href="#" onclick="showSection('products')">Products</a> |
-<a href="#" onclick="showSection('billing')">Billing</a>
+<a href="#" onclick="showSection('billing')">Billing</a> |
 <a href="history.html">Bill History</a> |
 <a href="reports.html">Reports</a>
+
 <hr>
 
-<!-- PRODUCTS SECTION -->
-<div id="productsSection" style="display:none;">
+<!-- PRODUCTS -->
+<div id="productsSection">
   <h2>Add Product</h2>
 
-  <input type="text" id="barcode" placeholder="Barcode">
-  <input type="text" id="productName" placeholder="Product Name">
-  <input type="number" id="productPrice" placeholder="Price">
-  <input type="number" id="gst" placeholder="GST %">
+  <input id="barcode" placeholder="Barcode">
+  <input id="productName" placeholder="Name">
+  <input id="productPrice" placeholder="Price">
+  <input id="gst" placeholder="GST %">
 
-  <button onclick="addProduct()">Add Product</button>
+  <button onclick="addProduct()">Add</button>
 
-  <h3>Product List</h3>
+  <h3>Products</h3>
   <ul id="productList"></ul>
 </div>
 
-<!-- BILLING SECTION -->
+<!-- BILLING -->
 <div id="billingSection" style="display:none;">
   <h2>Billing</h2>
 
   <input id="customerName" placeholder="Customer Name">
+  <input id="searchProduct" placeholder="Scan/Search product">
 
-  <div id="invoice" style="border:2px solid black; padding:20px; text-align:center;">
-    
-    <h3>Invoice No: <span id="invNo"></span></h3>
+  <div id="invoice" style="border:2px solid black; padding:20px;">
+    <h3>Invoice: <span id="invNo"></span></h3>
 
-    <table border="1" width="100%" style="border-collapse:collapse;" id="billTable">
+    <table border="1" width="100%" id="billTable">
       <tr>
-        <th>Product</th>
-        <th>Price ₹</th>
-        <th>GST %</th>
-        <th>Total ₹</th>
+        <th>Name</th>
+        <th>Price</th>
+        <th>GST</th>
+        <th>Total</th>
       </tr>
     </table>
 
     <h3>Total ₹<span id="total">0</span></h3>
   </div>
 
-  <br>
-
-  <button onclick="saveBill()">Save Bill</button>
-  <button onclick="downloadPDF()">Download PDF</button>
+  <button onclick="saveBill()">Save</button>
+  <button onclick="downloadPDF()">PDF</button>
   <button onclick="printInvoice()">Print</button>
-
 </div>
-<a href="history.html">Bill History</a>
-<!-- Script -->
 
-<script>
-function showSection(section) {
-  document.getElementById("productsSection").style.display = "none";
-  document.getElementById("billingSection").style.display = "none";
-
-  if (section === "products") {
-    document.getElementById("productsSection").style.display = "block";
-  } else if (section === "billing") {
-    document.getElementById("billingSection").style.display = "block";
-  }
-}
-</script>
-
-<a href="reports.html">Reports</a>
-  
 <button onclick="logout()">Logout</button>
 
 <script>
+function showSection(sec){
+  productsSection.style.display="none";
+  billingSection.style.display="none";
+
+  if(sec==="products") productsSection.style.display="block";
+  if(sec==="billing") billingSection.style.display="block";
+}
+
 function logout(){
   localStorage.clear();
   location.href="index.html";
 }
 </script>
+
 <script type="module" src="js/firebase.js"></script>
 
-<script>
-showSection('products');
-loadProducts();
-</script>
-
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  
 </body>
 </html>
