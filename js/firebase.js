@@ -21,14 +21,15 @@ const db = getFirestore(app);
 
 /* LOGIN */
 window.login = async function () {
-  const email = email.value;
-  const password = password.value;
+  const emailVal = document.getElementById("email").value;
+  const passwordVal = document.getElementById("password").value;
 
   try {
-    await signInWithEmailAndPassword(auth, email, password);
+    await signInWithEmailAndPassword(auth, emailVal, passwordVal);
 
-    localStorage.setItem("role",
-      email === "admin@gmail.com" ? "admin" : "cashier"
+    localStorage.setItem(
+      "role",
+      emailVal === "admin@gmail.com" ? "admin" : "cashier"
     );
 
     location.href = "dashboard.html";
