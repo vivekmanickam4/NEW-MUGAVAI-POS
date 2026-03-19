@@ -1,66 +1,33 @@
-
 <!DOCTYPE html>
 <html>
 <body>
 
-import { addDoc, collection } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-  
-  function generateInvoice(){
-  return "INV-" + Date.now();
-}
-window.saveBill = async function(){
-
-  let customer = document.getElementById("customerName").value;
-
-  if(!customer){
-    alert("Enter customer name");
-    return;
-  }
-
-  await addDoc(collection(db,"bills"),{
-    invoiceNo: document.getElementById("invNo").innerText,
-    customerName: customer,
-    total: parseFloat(totalSpan.innerText),
-    createdAt: new Date(),
-    role: localStorage.getItem("role")
-  });
-
-  alert("Bill Saved ✅");
-}
-document.getElementById("invNo").innerText = generateInvoice();
 <h1>Billing</h1>
 
-<input id="code" placeholder="Scan barcode">
-<input id="discount" value="0">
+<input id="barcodeInput" placeholder="Scan barcode">
+<input id="customerName" placeholder="Customer Name">
 
-<button onclick="addItem()">Add</button>
-
-<div id="invoice" style="border:2px solid black; padding:20px; text-align:center;">
+<div id="invoice" style="border:2px solid black; padding:20px;">
   
-  <h2>INVOICE</h2>
+  <h3>Invoice: <span id="invNo"></span></h3>
 
-  <p>Invoice No: <span id="invNo"></span></p>
-  <p>Customer Name: <input id="customerName"></p>
-
-  <table border="1" width="100%" style="border-collapse:collapse;">
+  <table border="1" width="100%" id="billTable" style="border-collapse:collapse; text-align:center;">
     <tr>
-      <th>Product</th>
-      <th>Price ₹</th>
-      <th>GST %</th>
-      <th>Total ₹</th>
+      <th>Name</th>
+      <th>Price</th>
+      <th>GST</th>
+      <th>Total</th>
+      <th>Action</th>
     </tr>
   </table>
 
-  <h2>Total ₹<span id="total">0</span></h2>
-
+  <h3>Total ₹<span id="total">0</span></h3>
 </div>
 
 <button onclick="saveBill()">Save Bill</button>
-<button onclick="downloadPDF()">Download PDF</button>
-<button onclick="printBill()">Print</button>
+<button onclick="printInvoice()">Print</button>
 
-<script type="module" src="js/billing.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script type="module" src="js/firebase.js"></script>
+
 </body>
 </html>
