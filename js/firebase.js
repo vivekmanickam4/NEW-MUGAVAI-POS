@@ -179,7 +179,6 @@ window.onload = function(){
 };
 
 //SAVE BILL TO HISTORY
-import { addDoc } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
 
 window.saveBill = async function () {
 
