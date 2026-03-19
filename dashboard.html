@@ -1,10 +1,11 @@
 <!DOCTYPE html>
 <html>
-  <head>
+<head>
   <title>Dashboard</title>
   <link rel="stylesheet" href="style.css">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
+
 <body>
 
 <h1>Dashboard</h1>
@@ -15,9 +16,15 @@
 <a href="reports.html">Reports</a>
 
 <hr>
-  
+
 <button onclick="logout()">Logout</button>
-<script type="module" src="js/billing.js"></script>
+
+<script>
+function logout(){
+  localStorage.clear();
+  location.href = "index.html";
+}
+</script>
 
 </body>
 </html>
