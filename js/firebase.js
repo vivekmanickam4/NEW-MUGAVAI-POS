@@ -302,3 +302,5 @@ window.addEventListener("load", () => {
   });
 
 });
+
+export { db };
