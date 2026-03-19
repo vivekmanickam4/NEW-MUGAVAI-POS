@@ -1,11 +1,12 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Index</title>
+  <title>NEW MUGAVAI LOGIN</title>
   <link rel="stylesheet" href="style.css">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>NEW MUGAVAI LOGIN</title>
 </head>
+
+<body>
 
 <h2>Login</h2>
 
@@ -13,9 +14,11 @@
 <input type="password" id="password" placeholder="Password">
 
 <button onclick="login()">Login</button>
+
 <script type="module">
-  import "./js/firebase.js";
-  window.login = window.login;
+  import { login } from "./js/firebase.js";
+
+  window.login = login;   // ✅ CONNECT FUNCTION
 </script>
 
 </body>
