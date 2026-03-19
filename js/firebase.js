@@ -3,7 +3,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/fireba
 import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js";
 import {
   getFirestore, addDoc, collection, getDocs,
-  deleteDoc, doc, onSnapshot
+  deleteDoc, doc, onSnapshot,setDoc
 } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
 
 // Config
@@ -64,8 +64,6 @@ if (found) {
 }
 
   // ✅ ADD PRODUCT
-  import { setDoc } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
-
 await setDoc(doc(db, "products", barcode), {
   barcode,
   name,
