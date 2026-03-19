@@ -304,3 +304,9 @@ window.addEventListener("load", () => {
 });
 
 export { db };
+
+window.addEventListener("load", () => {
+  if(document.getElementById("productList")){
+    loadProducts();
+  }
+});
