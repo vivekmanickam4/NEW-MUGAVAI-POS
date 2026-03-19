@@ -33,7 +33,7 @@ onSnapshot(col, snap=>{
       <td>₹${p.price}</td>
       <td>${p.gst}%</td>
       <td>
-        ${localStorage.getItem("role")==="admin" ? <button onclick="del('${d.id}')">Delete</button>:""}
+        ${localStorage.getItem("role")==="admin" ? `<button onclick="del('${d.id}')">Delete</button>` : ""}
       </td>
     </tr>`;
   });
