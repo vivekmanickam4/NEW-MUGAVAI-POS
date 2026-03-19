@@ -31,9 +31,10 @@
   <h2>Billing</h2>
 
   <input id="customerName" placeholder="Customer Name">
-  <input id="searchProduct" placeholder="Scan/Search product">
+  <input id="barcodeInput" placeholder="Scan Barcode">
 
   <div id="invoice" style="border:2px solid black; padding:20px;">
+    
     <h3>Invoice: <span id="invNo"></span></h3>
 
     <table border="1" width="100%" id="billTable">
@@ -49,10 +50,8 @@
   </div>
 
   <button onclick="saveBill()">Save</button>
-  <button onclick="downloadPDF()">PDF</button>
-  <button onclick="printInvoice()">Print</button>
 </div>
-
+  
 <button onclick="logout()">Logout</button>
 
 <script>
