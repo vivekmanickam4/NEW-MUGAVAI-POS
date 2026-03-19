@@ -1,11 +1,31 @@
 import { db } from "./firebase.js";
-import { collection, addDoc } 
+import { collection, addDoc, getDocs } 
 from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
 
 let items = [];
 
-/* ADD PRODUCT (simulate barcode input) */
-window.addByBarcode = function(product){
+/* AUTO GENERATE INVOICE NUMBER */
+document.getElementById("invNo").innerText = "INV-" + Date.now();
+
+/* BARCODE SCAN */
+document.getElementById("barcodeInput").addEventListener("change", async function(){
+
+  const code = this.value;
+  this.value = "";
+
+  const snap = await getDocs(collection(db,"products"));
+
+  snap.forEach(d=>{
+    let p = d.data();
+
+    if(p.barcode == code){
+      addProduct(p);
+    }
+  });
+});
+
+/* ADD PRODUCT WITH QTY MERGE */
+function addProduct(product){
 
   let existing = items.find(i => i.name === product.name);
 
@@ -23,7 +43,7 @@ window.addByBarcode = function(product){
   }
 
   render();
-};
+}
 
 /* RENDER TABLE */
 function render(){
@@ -59,7 +79,7 @@ function render(){
 
         <td>${i.price}</td>
         <td>${i.gst}%</td>
-        <td>${i.total}</td>
+        <td>${i.total.toFixed(2)}</td>
 
         <td>
           <button onclick="removeItem(${index})">🗑</button>
@@ -99,13 +119,13 @@ window.saveBill = async function(){
   const customer = document.getElementById("customerName").value;
 
   if(items.length === 0){
-    alert("No items!");
+    alert("No items added!");
     return;
   }
 
   const total = items.reduce((s,i)=>s+i.total,0);
 
-  const invoiceNo = "INV-" + Date.now();
+  const invoiceNo = document.getElementById("invNo").innerText;
 
   await addDoc(collection(db,"bills"),{
     invoiceNo,
@@ -114,19 +134,20 @@ window.saveBill = async function(){
     total
   });
 
-  alert("Saved!");
+  alert("Bill Saved!");
   location.reload();
 };
 
-/* PRINT CURRENT BILL */
+/* PRINT ONLY INVOICE */
 window.printInvoice = function(){
-  let html = document.getElementById("invoice").innerHTML;
+
+  const content = document.getElementById("invoice").innerHTML;
 
   let win = window.open();
   win.document.write(`
     <html>
     <body onload="window.print()">
-      ${html}
+      ${content}
     </body>
     </html>
   `);
