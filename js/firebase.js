@@ -51,19 +51,17 @@ window.addProduct = async function () {
   }
 
   // 🔥 CHECK DUPLICATE IN FIRESTORE
-  const snapshot = await getDocs(collection(db, "products"));
+  const existing = await getDocs(collection(db, "products"));
 
-  let exists = false;
-  snapshot.forEach(docItem => {
-    if (docItem.data().barcode === barcode) {
-      exists = true;
-    }
-  });
+let found = false;
+existing.forEach(d => {
+  if (d.id === barcode) found = true;
+});
 
-  if (exists) {
-    alert("❌ Product with this barcode already exists!");
-    return;
-  }
+if (found) {
+  alert("❌ Product already exists!");
+  return;
+}
 
   // ✅ ADD PRODUCT
   import { setDoc } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
