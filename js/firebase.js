@@ -17,24 +17,25 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 
 // LOGIN
-window.login = function () {
+window.login = async function () {
   const email = document.getElementById("email").value;
   const password = document.getElementById("password").value;
 
-  signInWithEmailAndPassword(auth, email, password)
-    .then((res) => {
+  try {
+    await signInWithEmailAndPassword(auth, email, password);
 
-      if(email === "admin@gmail.com"){
-        localStorage.setItem("role","admin");
-      } else {
-        localStorage.setItem("role","cashier");
-      }
+    if (email === "admin@gmail.com") {
+      localStorage.setItem("role", "admin");
+    } else {
+      localStorage.setItem("role", "cashier");
+    }
 
-      location.href = "dashboard.html";
-    })
-    .catch((error) => {
-      alert(error.message);
-    });
+    alert("Login success ✅");
+    window.location.href = "dashboard.html";
+
+  } catch (error) {
+    alert(error.message);
+  }
 };
 // ADD PRODUCT
 window.addProduct = async function () {
