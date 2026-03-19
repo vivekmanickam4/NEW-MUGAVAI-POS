@@ -104,21 +104,36 @@ window.loadProducts = function () {
   const list = document.getElementById("productList");
 
   onSnapshot(collection(db, "products"), (snapshot) => {
-    list.innerHTML = "";
+    list.innerHTML = `
+      <table border="1" width="100%" style="border-collapse:collapse; text-align:center;">
+        <tr>
+          <th>Barcode</th>
+          <th>Name</th>
+          <th>Price</th>
+          <th>GST</th>
+          <th>Action</th>
+        </tr>
+      </table>
+    `;
+
+    const table = list.querySelector("table");
 
     snapshot.forEach((docItem) => {
       const data = docItem.data();
 
-      const li = document.createElement("li");
-      li.innerHTML = `
-        ${data.name} | ₹${data.price} | GST: ${data.gst}%
-        ${localStorage.getItem("role") === "admin" 
-          ? `<button onclick="deleteProduct('${docItem.id}')">Delete</button>` 
-          : ""}
-        <button onclick="addToBill('${data.name}',${data.price},${data.gst})">Add</button>
+      table.innerHTML += `
+        <tr>
+          <td>${data.barcode}</td>
+          <td>${data.name}</td>
+          <td>₹${data.price}</td>
+          <td>${data.gst}%</td>
+          <td>
+            ${localStorage.getItem("role") === "admin"
+              ? `<button onclick="deleteProduct('${docItem.id}')">Delete</button>`
+              : ""}
+          </td>
+        </tr>
       `;
-
-      list.appendChild(li);
     });
   });
 };
@@ -138,33 +153,42 @@ window.deleteProduct = async function (id) {
 let total = 0;
 let billItems = [];
 
-window.addToBill = function (name, price, gst) {
-
+function addProductToBill(p) {
   const table = document.getElementById("billTable");
 
-  const gstAmount = (price * gst) / 100;
-  const finalPrice = price + gstAmount;
+  const gstAmount = (p.price * p.gst) / 100;
+  const finalPrice = p.price + gstAmount;
 
   total += finalPrice;
 
   billItems.push({
-    name,
-    price,
-    gst,
+    name: p.name,
+    price: p.price,
+    gst: p.gst,
     total: finalPrice
   });
 
-  const row = `
-    <tr>
-      <td>${name}</td>
-      <td>₹${price}</td>
-      <td>${gst}%</td>
+  const index = billItems.length - 1;
+
+  table.innerHTML += `
+    <tr id="row-${index}">
+      <td>${p.name}</td>
+      <td>₹${p.price}</td>
+      <td>${p.gst}%</td>
       <td>₹${finalPrice.toFixed(2)}</td>
+      <td><button onclick="removeItem(${index}, ${finalPrice})">Remove</button></td>
     </tr>
   `;
 
-  table.innerHTML += row;
+  document.getElementById("total").innerText = total.toFixed(2);
+}
 
+//ADD REMOVE FUNCTION
+
+window.removeItem = function(index, price){
+  document.getElementById(`row-${index}`).remove();
+
+  total -= price;
   document.getElementById("total").innerText = total.toFixed(2);
 };
 
@@ -172,12 +196,6 @@ window.addToBill = function (name, price, gst) {
 function generateInvoiceNo() {
   return "INV-" + Date.now();
 }
-
-window.onload = function(){
-  if(document.getElementById("invNo")){
-    document.getElementById("invNo").innerText = generateInvoiceNo();
-  }
-};
 
 //SAVE BILL TO HISTORY
 
@@ -200,20 +218,24 @@ window.saveBill = async function () {
 
   alert("Bill Saved ✅");
 
-  // RESET BILL
+  // RESET
   document.getElementById("billTable").innerHTML = `
     <tr>
-      <th>Product</th>
-      <th>Price ₹</th>
-      <th>GST %</th>
-      <th>Total ₹</th>
+      <th>Name</th>
+      <th>Price</th>
+      <th>GST</th>
+      <th>Total</th>
+      <th>Action</th>
     </tr>
   `;
+
   total = 0;
   billItems = [];
   document.getElementById("total").innerText = "0";
-};
 
+  // 🔥 NEW INVOICE NUMBER
+  document.getElementById("invNo").innerText = generateInvoiceNo();
+};
 //PRINT BUTTON
 window.printInvoice = function () {
   const content = document.getElementById("invoice").innerHTML;
