@@ -1,40 +1,59 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>BILLING</title>
-  <link rel="stylesheet" href="style.css">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Billing</title>
+
+  <!-- STYLES -->
+  <link rel="stylesheet" href="style.css" />
 </head>
+
 <body>
 
-<h1>Billing</h1>
+  <h1>Billing</h1>
 
-<input id="barcodeInput" placeholder="Scan barcode">
-<input id="customerName" placeholder="Customer Name">
+  <!-- INPUTS -->
+  <input id="barcodeInput" placeholder="Scan barcode" />
+  <input id="customerName" placeholder="Customer Name" />
 
-<div id="invoice" style="border:2px solid black; padding:20px;">
-  
-  <h3>Invoice: <span id="invNo"></span></h3>
+  <!-- INVOICE SECTION -->
+  <div id="invoice" style="border:2px solid black; padding:20px;">
 
-  <table border="1" width="80%" id="billTable" 
-style="margin:auto; border-collapse:collapse; text-align:center;">
-  <tr>
-    <th>Name</th>
-    <th>Qty</th>
-    <th>Price</th>
-    <th>GST</th>
-    <th>Total</th>
-    <th>Action</th>
-  </tr>
-</table>
+    <h3>
+      Invoice: <span id="invNo"></span>
+    </h3>
 
-<h3>Total ₹<span id="total">0</span></h3>
-</div>
+    <!-- BILL TABLE -->
+    <table
+      id="billTable"
+      border="1"
+      width="80%"
+      style="margin:auto; border-collapse:collapse; text-align:center;"
+    >
+      <tr>
+        <th>Name</th>
+        <th>Qty</th>
+        <th>Price</th>
+        <th>GST</th>
+        <th>Total</th>
+        <th>Action</th>
+      </tr>
+    </table>
 
-<button onclick="saveBill()">Save Bill</button>
-<button onclick="printInvoice()">Print</button>
+    <!-- TOTAL -->
+    <h3>
+      Total ₹<span id="total">0</span>
+    </h3>
 
-<script type="module" src="js/billing.js"></script>
+  </div>
+
+  <!-- ACTION BUTTONS -->
+  <button onclick="saveBill()">Save Bill</button>
+  <button onclick="printInvoice()">Print</button>
+
+  <!-- SCRIPT -->
+  <script type="module" src="js/billing.js"></script>
 
 </body>
 </html>
