@@ -84,6 +84,10 @@ window.loadProducts = async function () {
 
 // DELETE PRODUCT
 window.deleteProduct = async function (id) {
+  if (localStorage.getItem("role") !== "admin") {
+    alert("Only admin can delete products");
+    return;
+  }
   await deleteDoc(doc(db, "products", id));
   alert("Deleted");
   loadProducts();
