@@ -18,22 +18,23 @@
 
   <table border="1" width="80%" id="billTable" 
 style="margin:auto; border-collapse:collapse; text-align:center;">
-    <tr>
-      <th>Name</th>
-      <th>Price</th>
-      <th>GST</th>
-      <th>Total</th>
-      <th>Action</th>
-    </tr>
-  </table>
+  <tr>
+    <th>Name</th>
+    <th>Qty</th>
+    <th>Price</th>
+    <th>GST</th>
+    <th>Total</th>
+    <th>Action</th>
+  </tr>
+</table>
 
-  <h3>Total ₹<span id="total">0</span></h3>
+<h3>Total ₹<span id="total">0</span></h3>
 </div>
 
 <button onclick="saveBill()">Save Bill</button>
 <button onclick="printInvoice()">Print</button>
 
-<script type="module" src="js/firebase.js"></script>
+<script type="module" src="js/billing.js"></script>
 
 </body>
 </html>
