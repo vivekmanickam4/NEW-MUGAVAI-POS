@@ -22,15 +22,20 @@ window.login = function () {
   const password = document.getElementById("password").value;
 
   signInWithEmailAndPassword(auth, email, password)
-    .then(() => {
-      alert("Login successful");
-      window.location.href = "./dashboard.html";
+    .then((res) => {
+
+      if(email === "admin@gmail.com"){
+        localStorage.setItem("role","admin");
+      } else {
+        localStorage.setItem("role","cashier");
+      }
+
+      location.href = "dashboard.html";
     })
     .catch((error) => {
       alert(error.message);
     });
 };
-
 // ADD PRODUCT
 window.addProduct = async function () {
   const barcode = document.getElementById("barcode").value;
@@ -59,6 +64,36 @@ window.addProduct = async function () {
   document.getElementById("gst").value = "";
 
   loadProducts();
+};
+
+// SEARCH / SCAN PRODUCT
+window.onload = function(){
+
+  // invoice
+  if(document.getElementById("invNo")){
+    document.getElementById("invNo").innerText = generateInvoiceNo();
+  }
+
+  // search box
+  const search = document.getElementById("searchProduct");
+
+  if(search){
+    search.addEventListener("keypress", function(e){
+      if(e.key === "Enter"){
+        const value = search.value.toLowerCase();
+
+        const items = document.querySelectorAll("#productList li");
+
+        items.forEach(li=>{
+          if(li.innerText.toLowerCase().includes(value)){
+            li.style.background = "yellow";
+          }
+        });
+
+        search.value="";
+      }
+    });
+  }
 };
 
 // LOAD PRODUCTS
