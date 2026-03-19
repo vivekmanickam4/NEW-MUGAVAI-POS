@@ -8,19 +8,28 @@ async function load(){
   snap.forEach(d=>products.push(d.data()));
 }
 
-window.addItem=function(){
-  let p=products.find(x=>x.barcode==code.value);
+window.addItem = function(){
+  let p = products.find(x => x.barcode == code.value);
 
   if(p){
-    let price=p.price+(p.price*p.gst/100);
-    total+=price;
+    let gstAmount = (p.price * p.gst)/100;
+    let price = p.price + gstAmount;
 
-    bill.innerHTML+=`<tr>
-      <td>${p.name}</td>
-      <td>₹${price.toFixed(2)}</td>
-    </tr>`;
+    total += price;
+
+    bill.innerHTML += `
+      <tr>
+        <td>${p.name}</td>
+        <td>₹${p.price}</td>
+        <td>${p.gst}%</td>
+        <td>₹${price.toFixed(2)}</td>
+      </tr>
+    `;
 
     update();
+    code.value = "";
+  } else {
+    alert("Product not found");
   }
 }
 
