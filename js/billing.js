@@ -1,3 +1,5 @@
+console.log("NEW BILLING JS LOADED");
+
 import { db } from "./firebase.js";
 import { collection, addDoc, getDocs } 
 from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
