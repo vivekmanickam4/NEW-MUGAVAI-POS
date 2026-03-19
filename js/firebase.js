@@ -21,6 +21,7 @@ const db = getFirestore(app);
 
 /* LOGIN */
 window.login = async function () {
+
   const emailVal = document.getElementById("email").value;
   const passwordVal = document.getElementById("password").value;
 
@@ -33,6 +34,7 @@ window.login = async function () {
     );
 
     location.href = "dashboard.html";
+
   } catch (e) {
     alert(e.message);
   }
