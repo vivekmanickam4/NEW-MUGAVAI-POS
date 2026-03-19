@@ -67,10 +67,11 @@ window.previewBill = async function(id){
 
     <table border="1" style="width:100%; text-align:center">
       <tr>
-        <th>Name</th>
-        <th>Price</th>
-        <th>GST</th>
-        <th>Total</th>
+       <th>Name</th>
+<th>Qty</th>
+<th>Price</th>
+<th>GST</th>
+<th>Total</th>
       </tr>
   `;
 
