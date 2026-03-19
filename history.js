@@ -3,11 +3,9 @@ import {
   collection, getDocs, deleteDoc, doc
 } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
 
-async function load() {
+async function load(){
 
   const table = document.getElementById("historyTable");
-
-  const snap = await getDocs(collection(db, "bills"));
 
   table.innerHTML = `
     <tr>
@@ -18,7 +16,14 @@ async function load() {
     </tr>
   `;
 
-  snap.forEach(d => {
+  const snap = await getDocs(collection(db,"bills"));
+
+  if(snap.empty){
+    table.innerHTML += `<tr><td colspan="4">No Bills Found</td></tr>`;
+    return;
+  }
+
+  snap.forEach(d=>{
     let b = d.data();
 
     table.innerHTML += `
@@ -40,25 +45,21 @@ async function load() {
   });
 }
 
+// DELETE
 window.delBill = async function(id){
-  if(localStorage.getItem("role") !== "admin"){
-    alert("Admin only");
-    return;
-  }
-
   await deleteDoc(doc(db,"bills",id));
+  alert("Deleted");
   location.reload();
 };
 
 // PRINT
-window.printBill = function(inv){
-  alert("Open invoice: " + inv + " (you can enhance later)");
+window.printBill = function(){
   window.print();
 };
 
-// PDF
-window.downloadBill = function(inv){
-  alert("PDF for: " + inv);
+// PDF (basic)
+window.downloadBill = function(){
+  alert("PDF feature can be improved later");
 };
 
 load();
