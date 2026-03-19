@@ -1,7 +1,33 @@
+
 <!DOCTYPE html>
 <html>
 <body>
 
+import { addDoc, collection } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+  
+  function generateInvoice(){
+  return "INV-" + Date.now();
+}
+window.saveBill = async function(){
+
+  let customer = document.getElementById("customerName").value;
+
+  if(!customer){
+    alert("Enter customer name");
+    return;
+  }
+
+  await addDoc(collection(db,"bills"),{
+    invoiceNo: document.getElementById("invNo").innerText,
+    customerName: customer,
+    total: parseFloat(totalSpan.innerText),
+    createdAt: new Date(),
+    role: localStorage.getItem("role")
+  });
+
+  alert("Bill Saved ✅");
+}
+document.getElementById("invNo").innerText = generateInvoice();
 <h1>Billing</h1>
 
 <input id="code" placeholder="Scan barcode">
@@ -9,10 +35,28 @@
 
 <button onclick="addItem()">Add</button>
 
-<table border="1" id="bill"></table>
+<div id="invoice" style="border:2px solid black; padding:20px; text-align:center;">
+  
+  <h2>INVOICE</h2>
 
-<h2>Total ₹<span id="total">0</span></h2>
+  <p>Invoice No: <span id="invNo"></span></p>
+  <p>Customer Name: <input id="customerName"></p>
 
+  <table border="1" width="100%" style="border-collapse:collapse;">
+    <tr>
+      <th>Product</th>
+      <th>Price ₹</th>
+      <th>GST %</th>
+      <th>Total ₹</th>
+    </tr>
+  </table>
+
+  <h2>Total ₹<span id="total">0</span></h2>
+
+</div>
+
+<button onclick="saveBill()">Save Bill</button>
+<button onclick="downloadPDF()">Download PDF</button>
 <button onclick="printBill()">Print</button>
 
 <script type="module" src="js/billing.js"></script>
