@@ -1,8 +1,10 @@
 // Firebase imports
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js";
-import { getFirestore, addDoc, collection, getDocs, deleteDoc, doc } 
-from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
+import {
+  getFirestore, addDoc, collection, getDocs,
+  deleteDoc, doc, onSnapshot
+} from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
 
 // Config
 const firebaseConfig = {
@@ -24,11 +26,9 @@ window.login = async function () {
   try {
     await signInWithEmailAndPassword(auth, email, password);
 
-    if (email === "admin@gmail.com") {
-      localStorage.setItem("role", "admin");
-    } else {
-      localStorage.setItem("role", "cashier");
-    }
+    localStorage.setItem("role",
+      email === "admin@gmail.com" ? "admin" : "cashier"
+    );
 
     alert("Login success ✅");
     window.location.href = "dashboard.html";
@@ -37,6 +37,7 @@ window.login = async function () {
     alert(error.message);
   }
 };
+
 // ADD PRODUCT
 window.addProduct = async function () {
   const barcode = document.getElementById("barcode").value;
@@ -58,52 +59,19 @@ window.addProduct = async function () {
 
   alert("Product added ✅");
 
-  // clear fields
   document.getElementById("barcode").value = "";
   document.getElementById("productName").value = "";
   document.getElementById("productPrice").value = "";
   document.getElementById("gst").value = "";
-
-  loadProducts();
-};
-
-// SEARCH / SCAN PRODUCT
-window.onload = function(){
-
-  // invoice
-  if(document.getElementById("invNo")){
-    document.getElementById("invNo").innerText = generateInvoiceNo();
-  }
-
-  // search box
-  const search = document.getElementById("searchProduct");
-
-  if(search){
-    search.addEventListener("keypress", function(e){
-      if(e.key === "Enter"){
-        const value = search.value.toLowerCase();
-
-        const items = document.querySelectorAll("#productList li");
-
-        items.forEach(li=>{
-          if(li.innerText.toLowerCase().includes(value)){
-            li.style.background = "yellow";
-          }
-        });
-
-        search.value="";
-      }
-    });
-  }
 };
 
 // LOAD PRODUCTS
-import { onSnapshot } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
-
 window.loadProducts = function () {
   const list = document.getElementById("productList");
+  if (!list) return;
 
   onSnapshot(collection(db, "products"), (snapshot) => {
+
     list.innerHTML = `
       <table border="1" width="100%" style="border-collapse:collapse; text-align:center;">
         <tr>
@@ -141,12 +109,10 @@ window.loadProducts = function () {
 // DELETE PRODUCT
 window.deleteProduct = async function (id) {
   if (localStorage.getItem("role") !== "admin") {
-    alert("Only admin can delete products");
+    alert("Only admin can delete");
     return;
   }
   await deleteDoc(doc(db, "products", id));
-  alert("Deleted");
-  loadProducts();
 };
 
 // BILLING
@@ -161,14 +127,14 @@ function addProductToBill(p) {
 
   total += finalPrice;
 
+  const index = billItems.length;
+
   billItems.push({
     name: p.name,
     price: p.price,
     gst: p.gst,
     total: finalPrice
   });
-
-  const index = billItems.length - 1;
 
   table.innerHTML += `
     <tr id="row-${index}">
@@ -183,24 +149,20 @@ function addProductToBill(p) {
   document.getElementById("total").innerText = total.toFixed(2);
 }
 
-//ADD REMOVE FUNCTION
-
-window.removeItem = function(index, price){
+// REMOVE ITEM
+window.removeItem = function (index, price) {
   document.getElementById(`row-${index}`).remove();
-
   total -= price;
   document.getElementById("total").innerText = total.toFixed(2);
 };
 
-//INVOICE NUMBER
+// INVOICE
 function generateInvoiceNo() {
   return "INV-" + Date.now();
 }
 
-//SAVE BILL TO HISTORY
-
+// SAVE BILL
 window.saveBill = async function () {
-
   const customerName = document.getElementById("customerName").value;
 
   if (!customerName) {
@@ -218,7 +180,6 @@ window.saveBill = async function () {
 
   alert("Bill Saved ✅");
 
-  // RESET
   document.getElementById("billTable").innerHTML = `
     <tr>
       <th>Name</th>
@@ -232,11 +193,10 @@ window.saveBill = async function () {
   total = 0;
   billItems = [];
   document.getElementById("total").innerText = "0";
-
-  // 🔥 NEW INVOICE NUMBER
   document.getElementById("invNo").innerText = generateInvoiceNo();
 };
-//PRINT BUTTON
+
+// PRINT
 window.printInvoice = function () {
   const content = document.getElementById("invoice").innerHTML;
   const win = window.open();
@@ -244,69 +204,45 @@ window.printInvoice = function () {
   win.print();
 };
 
-//PDF DOWNLOAD
-window.downloadPDF = async function () {
-  const { jsPDF } = window.jspdf;
-
-  const invoice = document.getElementById("invoice");
-
-  const canvas = await html2canvas(invoice);
-  const img = canvas.toDataURL("image/png");
-
-  const pdf = new jsPDF();
-  pdf.addImage(img, "PNG", 10, 10);
-  pdf.save("invoice.pdf");
-};
-
-//ADD BARCODE LOGIC
-
+// BARCODE CACHE
 let productCache = [];
 
 async function loadProductsForScan() {
   const snap = await getDocs(collection(db, "products"));
   productCache = [];
-
-  snap.forEach(doc => {
-    productCache.push(doc.data());
-  });
+  snap.forEach(doc => productCache.push(doc.data()));
 }
 
-// CALL ON LOAD
-window.addEventListener("load", loadProductsForScan); 
+// MAIN LOAD (ONLY ONE)
+window.addEventListener("DOMContentLoaded", () => {
 
-//BARCODE SCAN SYSTEM
+  if (document.getElementById("productList")) {
+    loadProducts();
+  }
 
-window.addEventListener("load", () => {
+  const inv = document.getElementById("invNo");
+  if (inv) inv.innerText = generateInvoiceNo();
 
   const input = document.getElementById("barcodeInput");
+  if (input) {
+    input.addEventListener("keypress", function (e) {
+      if (e.key === "Enter") {
+        const code = input.value.trim();
+        const product = productCache.find(p => p.barcode === code);
 
-  if (!input) return;
+        if (!product) {
+          alert("Not found");
+          input.value = "";
+          return;
+        }
 
-  input.addEventListener("keypress", function (e) {
-
-    if (e.key === "Enter") {
-
-      const code = input.value.trim();
-
-      const product = productCache.find(p => p.barcode === code);
-
-      if (!product) {
-        alert("Product not found ❌");
+        addProductToBill(product);
         input.value = "";
-        return;
       }
+    });
+  }
 
-      addProductToBill(product);
-      input.value = "";
-    }
-  });
-
+  loadProductsForScan();
 });
 
 export { db };
-
-window.addEventListener("load", () => {
-  if(document.getElementById("productList")){
-    loadProducts();
-  }
-});
