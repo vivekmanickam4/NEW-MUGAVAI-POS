@@ -40,16 +40,32 @@ window.login = async function () {
 
 // ADD PRODUCT
 window.addProduct = async function () {
-  const barcode = document.getElementById("barcode").value;
-  const name = document.getElementById("productName").value;
-  const price = document.getElementById("productPrice").value;
-  const gst = document.getElementById("gst").value;
+  const barcode = document.getElementById("barcode").value.trim();
+  const name = document.getElementById("productName").value.trim();
+  const price = document.getElementById("productPrice").value.trim();
+  const gst = document.getElementById("gst").value.trim();
 
   if (!barcode || !name || !price || !gst) {
     alert("Fill all fields");
     return;
   }
 
+  // 🔥 CHECK DUPLICATE IN FIRESTORE
+  const snapshot = await getDocs(collection(db, "products"));
+
+  let exists = false;
+  snapshot.forEach(docItem => {
+    if (docItem.data().barcode === barcode) {
+      exists = true;
+    }
+  });
+
+  if (exists) {
+    alert("❌ Product with this barcode already exists!");
+    return;
+  }
+
+  // ✅ ADD PRODUCT
   await addDoc(collection(db, "products"), {
     barcode,
     name,
@@ -59,6 +75,7 @@ window.addProduct = async function () {
 
   alert("Product added ✅");
 
+  // Clear inputs
   document.getElementById("barcode").value = "";
   document.getElementById("productName").value = "";
   document.getElementById("productPrice").value = "";
