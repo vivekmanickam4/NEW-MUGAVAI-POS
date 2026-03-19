@@ -235,3 +235,73 @@ window.downloadPDF = async function () {
   pdf.addImage(img, "PNG", 10, 10);
   pdf.save("invoice.pdf");
 };
+
+//ADD BARCODE LOGIC
+
+let productCache = [];
+
+async function loadProductsForScan() {
+  const snap = await getDocs(collection(db, "products"));
+  productCache = [];
+
+  snap.forEach(doc => {
+    productCache.push(doc.data());
+  });
+}
+
+// CALL ON LOAD
+window.addEventListener("load", loadProductsForScan); 
+
+//BARCODE SCAN SYSTEM
+
+window.addEventListener("load", () => {
+
+  const input = document.getElementById("barcodeInput");
+
+  if (!input) return;
+
+  input.addEventListener("keypress", function (e) {
+
+    if (e.key === "Enter") {
+
+      const code = input.value.trim();
+
+      const product = productCache.find(p => p.barcode === code);
+
+      if (!product) {
+        alert("Product not found ❌");
+        input.value = "";
+        return;
+      }
+
+      addProductToBill(product);
+      input.value = "";
+    }
+  });
+
+});
+
+//ADD PRODUCT TO BILL
+
+function addProductToBill(p) {
+
+  const table = document.getElementById("billTable");
+
+  const gstAmount = (p.price * p.gst) / 100;
+  const finalPrice = p.price + gstAmount;
+
+  total += finalPrice;
+
+  const row = `
+    <tr>
+      <td>${p.name}</td>
+      <td>₹${p.price}</td>
+      <td>${p.gst}%</td>
+      <td>₹${finalPrice.toFixed(2)}</td>
+    </tr>
+  `;
+
+  table.innerHTML += row;
+
+  document.getElementById("total").innerText = total.toFixed(2);
+}
