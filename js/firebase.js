@@ -66,13 +66,15 @@ window.addProduct = async function () {
   }
 
   // ✅ ADD PRODUCT
-  await addDoc(collection(db, "products"), {
-    barcode,
-    name,
-    price: Number(price),
-    gst: Number(gst)
-  });
+  import { setDoc } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
 
+await setDoc(doc(db, "products", barcode), {
+  barcode,
+  name,
+  price: Number(price),
+  gst: Number(gst)
+});
+  
   alert("Product added ✅");
 
   // Clear inputs
