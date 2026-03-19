@@ -9,7 +9,29 @@
   <title>Bill History</title>
 </head>
 <body>
+<div style="text-align:right; margin:10px;">
+  <button onclick="exportAll()">Export All Bills</button>
+</div>
+  window.exportAll = async function(){
 
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+
+  const snap = await getDocs(collection(db,"bills"));
+
+  let y = 20;
+
+  doc.text("ALL BILL REPORT", 70, 10);
+
+  snap.forEach(d=>{
+    let b = d.data();
+
+    doc.text(`${b.invoiceNo} | ${b.customerName} | ₹${b.total}`, 10, y);
+    y += 10;
+  });
+
+  doc.save("All_Bills.pdf");
+};
 <h1>Bill History</h1>
 
 <table border="1" width="100%" id="historyTable" style="text-align:center; border-collapse:collapse;">
