@@ -62,15 +62,35 @@ window.loadProducts = function () {
   if (!list) return;
 
   onSnapshot(collection(db, "products"), snap => {
-    list.innerHTML = "";
+   list.innerHTML = `
+<table border="1" width="80%" style="
+  margin:auto;
+  border-collapse:collapse;
+  text-align:center;
+">
+<tr>
+  <th>Barcode</th>
+  <th>Name</th>
+  <th>Price ₹</th>
+  <th>GST %</th>
+</tr>
+</table>
+`;
 
-    snap.forEach(d => {
-      let p = d.data();
+const table = list.querySelector("table");
 
-      list.innerHTML += `
-        <p>${p.name} ₹${p.price}</p>
-      `;
-    });
+snap.forEach(d => {
+  let p = d.data();
+
+  table.innerHTML += `
+  <tr>
+    <td>${p.barcode}</td>
+    <td>${p.name}</td>
+    <td>${p.price}</td>
+    <td>${p.gst}%</td>
+  </tr>
+  `;
+});
   });
 };
 
