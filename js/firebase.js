@@ -186,3 +186,17 @@ window.printInvoice = function () {
   win.document.write(content);
   win.print();
 };
+
+//PDF DOWNLOAD
+window.downloadPDF = async function () {
+  const { jsPDF } = window.jspdf;
+
+  const invoice = document.getElementById("invoice");
+
+  const canvas = await html2canvas(invoice);
+  const img = canvas.toDataURL("image/png");
+
+  const pdf = new jsPDF();
+  pdf.addImage(img, "PNG", 10, 10);
+  pdf.save("invoice.pdf");
+};
