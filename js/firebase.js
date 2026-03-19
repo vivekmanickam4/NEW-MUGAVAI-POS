@@ -39,23 +39,32 @@ window.login = async function () {
 
 /* ADD PRODUCT */
 window.addProduct = async function () {
-  const barcode = barcode.value.trim();
-  const name = productName.value.trim();
-  const price = productPrice.value.trim();
-  const gst = gst.value.trim();
 
-  if (!barcode || !name || !price || !gst) return alert("Fill all");
+  const barcodeVal = document.getElementById("barcode").value.trim();
+  const nameVal = document.getElementById("productName").value.trim();
+  const priceVal = document.getElementById("productPrice").value.trim();
+  const gstVal = document.getElementById("gst").value.trim();
 
-  await setDoc(doc(db, "products", barcode), {
-    barcode,
-    name,
-    price: Number(price),
-    gst: Number(gst)
+  if (!barcodeVal || !nameVal || !priceVal || !gstVal) {
+    alert("Fill all fields");
+    return;
+  }
+
+  await setDoc(doc(db, "products", barcodeVal), {
+    barcode: barcodeVal,
+    name: nameVal,
+    price: Number(priceVal),
+    gst: Number(gstVal)
   });
 
-  alert("Added ✅");
-};
+  alert("Product Added ✅");
 
+  // clear inputs
+  document.getElementById("barcode").value = "";
+  document.getElementById("productName").value = "";
+  document.getElementById("productPrice").value = "";
+  document.getElementById("gst").value = "";
+};
 /* LOAD PRODUCTS */
 window.loadProducts = function () {
   const list = document.getElementById("productList");
