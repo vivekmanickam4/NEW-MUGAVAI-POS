@@ -79,9 +79,10 @@ window.previewBill = async function(id){
     html += `
       <tr>
         <td>${i.name}</td>
-        <td>${i.price}</td>
-        <td>${i.gst}%</td>
-        <td>${i.total}</td>
+        <td>${i.qty || 1}</td>
+<td>${i.price}</td>
+<td>${i.gst}%</td>
+<td>${i.total}</td>
       </tr>
     `;
   });
@@ -116,9 +117,10 @@ window.printInvoice = async function(id){
     <table border="1" width="100%" style="text-align:center">
       <tr>
         <th>Name</th>
-        <th>Price</th>
-        <th>GST</th>
-        <th>Total</th>
+        <td>${i.qty || 1}</td>
+<td>${i.price}</td>
+<td>${i.gst}%</td>
+<td>${i.total}</td>
       </tr>
   `;
 
@@ -126,9 +128,10 @@ window.printInvoice = async function(id){
     html += `
       <tr>
         <td>${i.name}</td>
-        <td>${i.price}</td>
-        <td>${i.gst}%</td>
-        <td>${i.total}</td>
+        <td>${i.qty || 1}</td>
+<td>${i.price}</td>
+<td>${i.gst}%</td>
+<td>${i.total}</td>
       </tr>
     `;
   });
@@ -166,7 +169,7 @@ window.downloadBill = async function(id){
   let y = 70;
 
   bill.items.forEach(i=>{
-    doc.text(`${i.name} - ₹${i.total}`, 20, y);
+    doc.text(`${i.name} x${i.qty || 1} - ₹${i.total}`, 20, y);
     y += 10;
   });
 
