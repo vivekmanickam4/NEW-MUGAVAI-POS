@@ -62,23 +62,28 @@ window.addProduct = async function () {
 };
 
 // LOAD PRODUCTS
-window.loadProducts = async function () {
+import { onSnapshot } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
+
+window.loadProducts = function () {
   const list = document.getElementById("productList");
-  list.innerHTML = "";
 
-  const querySnapshot = await getDocs(collection(db, "products"));
+  onSnapshot(collection(db, "products"), (snapshot) => {
+    list.innerHTML = "";
 
-  querySnapshot.forEach((docItem) => {
-    const data = docItem.data();
+    snapshot.forEach((docItem) => {
+      const data = docItem.data();
 
-    const li = document.createElement("li");
-    li.innerHTML = `
-      ${data.name} | ₹${data.price} | GST: ${data.gst}%
-      <button onclick="deleteProduct('${docItem.id}')">Delete</button>
-      <button onclick="addToBill('${docItem.id}','${data.name}',${data.price},${data.gst})">Add</button>
-    `;
+      const li = document.createElement("li");
+      li.innerHTML = `
+        ${data.name} | ₹${data.price} | GST: ${data.gst}%
+        ${localStorage.getItem("role") === "admin" 
+          ? `<button onclick="deleteProduct('${docItem.id}')">Delete</button>` 
+          : ""}
+        <button onclick="addToBill('${data.name}',${data.price},${data.gst})">Add</button>
+      `;
 
-    list.appendChild(li);
+      list.appendChild(li);
+    });
   });
 };
 
