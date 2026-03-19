@@ -79,4 +79,16 @@ window.printBill = function () {
   window.print();
 };
 
+window.downloadBill = function (invoice, total) {
+  const { jsPDF } = window.jspdf;
+
+  const doc = new jsPDF();
+
+  doc.text("INVOICE", 90, 20);
+  doc.text("Invoice: " + invoice, 20, 40);
+  doc.text("Total: ₹" + total, 20, 60);
+
+  doc.save(invoice + ".pdf");
+};
+
 load();
