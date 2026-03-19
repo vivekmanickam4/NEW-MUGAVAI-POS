@@ -15,41 +15,8 @@
 <a href="reports.html">Reports</a>
 
 <hr>
-
-<!-- PRODUCTS -->
-<div id="productsSection">
-  <h2>Add Product</h2>
-
-  <input id="barcode" placeholder="Barcode">
-  <input id="productName" placeholder="Name">
-  <input id="productPrice" placeholder="Price">
-  <input id="gst" placeholder="GST %">
-
-  <button onclick="addProduct()">Add</button>
-
-  <h3>Products</h3>
-
-  <!-- ✅ THIS WAS MISSING -->
-  <div id="productList"></div>
-</div>
   
 <button onclick="logout()">Logout</button>
-
-<script>
-function showSection(sec){
-  productsSection.style.display="none";
-  billingSection.style.display="none";
-
-  if(sec==="products") productsSection.style.display="block";
-  if(sec==="billing") billingSection.style.display="block";
-}
-
-function logout(){
-  localStorage.clear();
-  location.href="index.html";
-}
-</script>
-
 <script type="module" src="js/billing.js"></script>
 
 </body>
