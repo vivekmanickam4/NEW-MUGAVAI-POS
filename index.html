@@ -11,7 +11,10 @@
 <input type="password" id="password" placeholder="Password">
 
 <button onclick="login()">Login</button>
-<script src="js/firebase.js" type="module"></script>
+<script type="module">
+  import "./js/firebase.js";
+  window.login = window.login;
+</script>
 
 </body>
 </html>
