@@ -36,4 +36,9 @@ let date = b.createdAt.seconds
   `;
 }
 
+/* BACK BUTTON */
+window.goBack = function () {
+  window.history.back();
+};
+
 load();
