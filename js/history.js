@@ -116,11 +116,11 @@ window.printInvoice = async function(id){
 
     <table border="1" width="100%" style="text-align:center">
       <tr>
-        <th>Name</th>
-        <td>${i.qty || 1}</td>
-<td>${i.price}</td>
-<td>${i.gst}%</td>
-<td>${i.total}</td>
+  <th>Name</th>
+  <th>Qty</th>
+  <th>Price</th>
+  <th>GST</th>
+  <th>Total</th>
       </tr>
   `;
 
