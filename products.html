@@ -1,34 +1,35 @@
 <!DOCTYPE html>
 <html>
-  <head>
+
+<head>
   <title>Products</title>
   <link rel="stylesheet" href="style.css">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
-<button onclick="goBack()">⬅ Back</button>
 
-  <tr>
-  <th>Name</th>
-  <th>Price</th>
-  <th>GST</th>
-  <th>Barcode</th>
-  <th>Action</th>
-</tr>
-  
 <body>
+
+<!-- BACK BUTTON -->
+<button onclick="goBack()">⬅ Back</button>
 
 <h1>Products</h1>
 
+<!-- 🔍 SEARCH -->
+<input id="search" placeholder="Search product..." onkeyup="searchProduct()" style="margin-bottom:10px; width:200px;">
+
+<!-- ADMIN PANEL -->
 <div id="adminPanel">
   <input id="productName" placeholder="Name">
   <input id="productPrice" placeholder="Price">
   <input id="gst" placeholder="GST %">
   <input id="barcode" placeholder="Barcode">
 
- <button onclick="addProduct()">Add</button>
+  <button onclick="addProduct()">Add</button>
 </div>
 
-<table border="1" id="table"></table>
+<!-- TABLE -->
+<table border="1" id="table" style="text-align:center; border-collapse:collapse;">
+</table>
 
 <script type="module" src="js/products.js"></script>
 
