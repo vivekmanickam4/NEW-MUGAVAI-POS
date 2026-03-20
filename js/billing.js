@@ -6,6 +6,22 @@ import {
   getDocs
 } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
 
+/AUTO LOAD CART/
+
+let billItems = [];
+
+window.addEventListener("load", () => {
+
+  const data = JSON.parse(localStorage.getItem("cart")) || [];
+
+  if (data.length === 0) return;
+
+  billItems = data;
+
+  billItems.forEach(p => addProduct(p));
+
+});
+
 // AUTO ADD FROM PRODUCTS PAGE
 window.addEventListener("load", () => {
 
@@ -213,6 +229,17 @@ window.printInvoice = function () {
       </body>
     </html>
   `);
+};
+
+/*CLEAR BUTTON*/
+window.clearBill = function () {
+
+  if (!confirm("Clear all items?")) return;
+
+  localStorage.removeItem("cart");
+
+  // Clear UI
+  location.reload();
 };
 
 /* BACK BUTTON */
