@@ -125,16 +125,27 @@ search.addEventListener("input", () => {
 
   if (!confirmAdd) return;
 
-  // Save selected product
-  localStorage.setItem("selectedProduct", JSON.stringify(p));
+  // Get existing billing items
+  let cart = JSON.parse(localStorage.getItem("cart")) || [];
 
-  // Go to billing page
-  window.location.href = "billing.html";
+  // Check if already exists
+  let existing = cart.find(item => item.barcode === p.barcode);
+
+  if (existing) {
+    existing.qty += 1;
+    existing.total = existing.qty * existing.price;
+  } else {
+    cart.push({
+      ...p,
+      qty: 1,
+      total: p.price
+    });
+  }
+
+  localStorage.setItem("cart", JSON.stringify(cart));
+
+  alert("Added to billing ✅");
 };
-
-    dropdown.appendChild(div);
-  });
-});
 
 /* ⌨ KEYBOARD NAV */
 search.addEventListener("keydown", (e) => {
