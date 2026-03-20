@@ -116,11 +116,21 @@ search.addEventListener("input", () => {
     const div = document.createElement("div");
     div.innerText = `${p.name} (₹${p.price})`;
 
-    div.onclick = () => {
-      search.value = p.name;
-      dropdown.innerHTML = "";
-      alert(`Selected: ${p.name}`);
-    };
+   div.onclick = () => {
+
+  search.value = p.name;
+  dropdown.innerHTML = "";
+
+  const confirmAdd = confirm(`Do you want to add "${p.name}" to billing?`);
+
+  if (!confirmAdd) return;
+
+  // Save selected product
+  localStorage.setItem("selectedProduct", JSON.stringify(p));
+
+  // Go to billing page
+  window.location.href = "billing.html";
+};
 
     dropdown.appendChild(div);
   });
