@@ -12,13 +12,7 @@ let selectedIndex = -1;
 
 /* LOAD PRODUCTS */
 async function load() {
-
   const table = document.getElementById("table");
-
-  if (!table) {
-    console.error("Table not found!");
-    return;
-  }
 
   table.innerHTML = `
     <tr>
@@ -58,11 +52,10 @@ async function load() {
 
 /* ADD PRODUCT */
 window.addProduct = async function () {
-
-  const name = document.getElementById("productName")?.value;
-  const price = document.getElementById("productPrice")?.value;
-  const gst = document.getElementById("gst")?.value;
-  const barcode = document.getElementById("barcode")?.value;
+  const name = document.getElementById("productName").value;
+  const price = document.getElementById("productPrice").value;
+  const gst = document.getElementById("gst").value;
+  const barcode = document.getElementById("barcode").value;
 
   if (!name || !price || !gst || !barcode) {
     alert("Fill all fields");
@@ -78,7 +71,6 @@ window.addProduct = async function () {
 
   alert("Product Added ✅");
 
-  // clear inputs
   document.getElementById("productName").value = "";
   document.getElementById("productPrice").value = "";
   document.getElementById("gst").value = "";
@@ -94,12 +86,11 @@ window.delProduct = async function (id) {
   load();
 };
 
-/* 🔍 SEARCH */
+/* SEARCH */
 const search = document.getElementById("search");
 const dropdown = document.getElementById("dropdown");
 
 search.addEventListener("input", () => {
-
   const val = search.value.toLowerCase();
   dropdown.innerHTML = "";
   selectedIndex = -1;
@@ -112,44 +103,42 @@ search.addEventListener("input", () => {
   );
 
   filtered.forEach((p, i) => {
-
     const div = document.createElement("div");
     div.innerText = `${p.name} (₹${p.price})`;
 
-   div.onclick = () => {
+    div.onclick = () => {
+      search.value = p.name;
+      dropdown.innerHTML = "";
 
-  search.value = p.name;
-  dropdown.innerHTML = "";
+      const confirmAdd = confirm(`Add "${p.name}" to billing?`);
+      if (!confirmAdd) return;
 
-  const confirmAdd = confirm(`Do you want to add "${p.name}" to billing?`);
+      let cart = JSON.parse(localStorage.getItem("cart")) || [];
 
-  if (!confirmAdd) return;
+      let existing = cart.find(item => item.barcode === p.barcode);
 
-  // Get existing billing items
-  let cart = JSON.parse(localStorage.getItem("cart")) || [];
+      if (existing) {
+        existing.qty += 1;
+        existing.total = existing.qty * existing.price;
+      } else {
+        cart.push({
+          ...p,
+          qty: 1,
+          total: p.price
+        });
+      }
 
-  // Check if already exists
-  let existing = cart.find(item => item.barcode === p.barcode);
+      localStorage.setItem("cart", JSON.stringify(cart));
 
-  if (existing) {
-    existing.qty += 1;
-    existing.total = existing.qty * existing.price;
-  } else {
-    cart.push({
-      ...p,
-      qty: 1,
-      total: p.price
-    });
-  }
+      alert("Added to billing ✅");
+    };
 
-  localStorage.setItem("cart", JSON.stringify(cart));
+    dropdown.appendChild(div);
+  });
+});
 
-  alert("Added to billing ✅");
-};
-
-/* ⌨ KEYBOARD NAV */
+/* KEYBOARD NAV */
 search.addEventListener("keydown", (e) => {
-
   const items = dropdown.querySelectorAll("div");
 
   if (e.key === "ArrowDown") {
@@ -180,15 +169,8 @@ function update(items) {
   }
 }
 
-/* BACK */
-window.goBack = function () {
-  window.history.back();
-};
-    
-//Go to Billing
-window.goBilling = function () {
-  window.location.href = "billing.html";
-};
-    
-/* LOAD ON START */
+/* NAVIGATION */
+window.goBack = () => window.history.back();
+window.goBilling = () => window.location.href = "billing.html";
+
 load();
