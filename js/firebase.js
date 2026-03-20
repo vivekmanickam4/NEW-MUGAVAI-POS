@@ -106,35 +106,6 @@ snap.forEach(d => {
   });
 };
 
-/* BILLING */
-let total = 0;
-let billItems = [];
-
-function addProductToBill(p) {
-  const table = document.getElementById("billTable");
-
-  const gstAmount = (p.price * p.gst) / 100;
-  const final = p.price + gstAmount;
-
-  total += final;
-
-  const index = billItems.length;
-
-  billItems.push({ ...p, total: final });
-
-  table.innerHTML += `
-    <tr id="row-${index}">
-      <td>${p.name}</td>
-      <td>${p.price}</td>
-      <td>${p.gst}%</td>
-      <td>${final.toFixed(2)}</td>
-      <td><button onclick="removeItem(${index}, ${final})">X</button></td>
-    </tr>
-  `;
-
-  document.getElementById("total").innerText = total.toFixed(2);
-}
-
 /* REMOVE */
 window.removeItem = function (i, price) {
   document.getElementById(`row-${i}`).remove();
@@ -175,11 +146,6 @@ window.saveBill = async function () {
 
   document.getElementById("total").innerText = "0";
   document.getElementById("invNo").innerText = generateInvoiceNo();
-};
-
-/* PRINT */
-window.printInvoice = function () {
-  window.print();
 };
 
 /* BARCODE */
