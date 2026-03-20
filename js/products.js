@@ -184,6 +184,11 @@ function update(items) {
 window.goBack = function () {
   window.history.back();
 };
-
+    
+//Go to Billing
+window.goBilling = function () {
+  window.location.href = "billing.html";
+};
+    
 /* LOAD ON START */
 load();
