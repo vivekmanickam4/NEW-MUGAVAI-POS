@@ -11,13 +11,14 @@
       border: 1px solid #ccc;
       max-height: 150px;
       overflow-y: auto;
-      width: 200px;
+      width: 250px;
       position: absolute;
       background: white;
+      z-index: 1000;
     }
 
     #dropdown div {
-      padding: 5px;
+      padding: 8px;
       cursor: pointer;
     }
 
@@ -34,12 +35,11 @@
 
 <h1>Products</h1>
 
-<!-- 🔍 SEARCH BOX -->
+<!-- 🔍 SEARCH -->
 <input id="search" placeholder="Search / Scan Barcode" autocomplete="off">
-
 <div id="dropdown"></div>
 
-<!-- ADMIN PANEL -->
+<!-- ➕ ADD PRODUCT -->
 <div id="adminPanel">
   <input id="productName" placeholder="Name">
   <input id="productPrice" placeholder="Price">
@@ -48,8 +48,9 @@
   <button onclick="addProduct()">Add</button>
 </div>
 
-<!-- TABLE -->
-<table border="1" id="table" style="margin-top:20px; text-align:center; border-collapse:collapse;"></table>
+<!-- 📋 TABLE -->
+<table border="1" id="table" style="margin-top:20px; border-collapse:collapse; width:100%; text-align:center;">
+</table>
 
 <script type="module" src="js/products.js"></script>
 
