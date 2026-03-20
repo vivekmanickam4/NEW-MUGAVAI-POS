@@ -5,28 +5,44 @@ import {
   addDoc,
   getDocs
 } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
+import { onSnapshot } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
 
+function loadProducts() {
+  onSnapshot(collection(db, "products"), snap => {
+    productCache = [];
+    snap.forEach(doc => productCache.push(doc.data()));
+  });
+}
 
 // GLOBAL STATE
 let items = [];
+let productCache = [];
+async function loadProducts() {
+  const snap = await getDocs(collection(db, "products"));
+  productCache = [];
 
+  snap.forEach(doc => {
+    productCache.push(doc.data());
+  });
+}
 
 // AUTO GENERATE INVOICE NUMBER
 document.getElementById("invNo").innerText = "INV-" + new Date().toLocaleString();
 
 // BARCODE SCAN
-document.getElementById("barcodeInput").addEventListener("change", async function () {
+
+document.getElementById("barcodeInput").addEventListener("change", function () {
   const code = this.value;
   this.value = "";
 
-  const snap = await getDocs(collection(db, "products"));
+  const product = productCache.find(p => p.barcode == code);
 
-  snap.forEach(doc => {
-    let product = doc.data();
-    if (product.barcode == code) {
-      addProduct(product);
-    }
-  });
+  if (!product) {
+    alert("Product not found");
+    return;
+  }
+
+  addProduct(product);
 });
 
 
@@ -130,7 +146,10 @@ window.removeItem = function (i) {
 // SAVE BILL
 window.saveBill = async function () {
   const customer = document.getElementById("customerName").value;
-
+if (!customer) {
+  alert("Enter customer name");
+  return;
+}
   if (items.length === 0) {
     alert("No items added!");
     return;
