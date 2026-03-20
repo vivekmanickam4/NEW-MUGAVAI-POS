@@ -39,15 +39,6 @@ function addProduct(product) {
    const gstAmount = (existing.price * existing.gst) / 100;
 existing.total = existing.qty * (existing.price + gstAmount);
   } else {
-    items.push({
-      name: product.name,
-      price: product.price,
-      gst: product.gst,
-      qty: 1,
-      total: product.price
-    });
-
-// ADD NEW PRODUCTS
     const gstAmount = (product.price * product.gst) / 100;
 
 items.push({
