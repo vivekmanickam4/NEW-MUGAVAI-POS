@@ -12,7 +12,13 @@ let selectedIndex = -1;
 
 /* LOAD PRODUCTS */
 async function load() {
+
   const table = document.getElementById("table");
+
+  if (!table) {
+    console.error("Table not found!");
+    return;
+  }
 
   table.innerHTML = `
     <tr>
@@ -25,6 +31,7 @@ async function load() {
   `;
 
   const snap = await getDocs(collection(db, "products"));
+
   products = [];
 
   snap.forEach(d => {
@@ -51,10 +58,11 @@ async function load() {
 
 /* ADD PRODUCT */
 window.addProduct = async function () {
-  const name = document.getElementById("productName").value;
-  const price = parseFloat(document.getElementById("productPrice").value);
-  const gst = parseFloat(document.getElementById("gst").value);
-  const barcode = document.getElementById("barcode").value;
+
+  const name = document.getElementById("productName")?.value;
+  const price = document.getElementById("productPrice")?.value;
+  const gst = document.getElementById("gst")?.value;
+  const barcode = document.getElementById("barcode")?.value;
 
   if (!name || !price || !gst || !barcode) {
     alert("Fill all fields");
@@ -63,12 +71,19 @@ window.addProduct = async function () {
 
   await addDoc(collection(db, "products"), {
     name,
-    price,
-    gst,
+    price: parseFloat(price),
+    gst: parseFloat(gst),
     barcode
   });
 
-  alert("Added!");
+  alert("Product Added ✅");
+
+  // clear inputs
+  document.getElementById("productName").value = "";
+  document.getElementById("productPrice").value = "";
+  document.getElementById("gst").value = "";
+  document.getElementById("barcode").value = "";
+
   load();
 };
 
@@ -79,11 +94,12 @@ window.delProduct = async function (id) {
   load();
 };
 
-/* 🔍 LIVE SEARCH + DROPDOWN */
+/* 🔍 SEARCH */
 const search = document.getElementById("search");
 const dropdown = document.getElementById("dropdown");
 
 search.addEventListener("input", () => {
+
   const val = search.value.toLowerCase();
   dropdown.innerHTML = "";
   selectedIndex = -1;
@@ -96,33 +112,33 @@ search.addEventListener("input", () => {
   );
 
   filtered.forEach((p, i) => {
+
     const div = document.createElement("div");
     div.innerText = `${p.name} (₹${p.price})`;
-    div.onclick = () => selectProduct(p);
+
+    div.onclick = () => {
+      search.value = p.name;
+      dropdown.innerHTML = "";
+      alert(`Selected: ${p.name}`);
+    };
+
     dropdown.appendChild(div);
   });
 });
 
-/* SELECT PRODUCT */
-function selectProduct(p) {
-  search.value = p.name;
-  dropdown.innerHTML = "";
-
-  alert(`Selected: ${p.name} | ₹${p.price}`);
-}
-
-/* ⌨ KEYBOARD NAVIGATION */
+/* ⌨ KEYBOARD NAV */
 search.addEventListener("keydown", (e) => {
+
   const items = dropdown.querySelectorAll("div");
 
   if (e.key === "ArrowDown") {
     selectedIndex++;
-    updateActive(items);
+    update(items);
   }
 
   if (e.key === "ArrowUp") {
     selectedIndex--;
-    updateActive(items);
+    update(items);
   }
 
   if (e.key === "Enter") {
@@ -132,7 +148,7 @@ search.addEventListener("keydown", (e) => {
   }
 });
 
-function updateActive(items) {
+function update(items) {
   items.forEach(i => i.classList.remove("active"));
 
   if (selectedIndex >= items.length) selectedIndex = 0;
@@ -143,9 +159,10 @@ function updateActive(items) {
   }
 }
 
-/* BACK BUTTON */
+/* BACK */
 window.goBack = function () {
   window.history.back();
 };
 
+/* LOAD ON START */
 load();
