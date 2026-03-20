@@ -200,5 +200,10 @@ window.delBill = async function (id) {
   load();
 };
 
+/* BACK BUTTON */
+window.goBack = function () {
+  window.history.back();
+};
+
 /* INIT */
 load();
