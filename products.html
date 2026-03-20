@@ -5,17 +5,39 @@
   <title>Products</title>
   <link rel="stylesheet" href="style.css">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <style>
+    #dropdown {
+      border: 1px solid #ccc;
+      max-height: 150px;
+      overflow-y: auto;
+      width: 200px;
+      position: absolute;
+      background: white;
+    }
+
+    #dropdown div {
+      padding: 5px;
+      cursor: pointer;
+    }
+
+    #dropdown div:hover,
+    .active {
+      background: #ddd;
+    }
+  </style>
 </head>
 
 <body>
 
-<!-- BACK BUTTON -->
 <button onclick="goBack()">⬅ Back</button>
 
 <h1>Products</h1>
 
-<!-- 🔍 SEARCH -->
-<input id="search" placeholder="Search product..." onkeyup="searchProduct()" style="margin-bottom:10px; width:200px;">
+<!-- 🔍 SEARCH BOX -->
+<input id="search" placeholder="Search / Scan Barcode" autocomplete="off">
+
+<div id="dropdown"></div>
 
 <!-- ADMIN PANEL -->
 <div id="adminPanel">
@@ -23,13 +45,11 @@
   <input id="productPrice" placeholder="Price">
   <input id="gst" placeholder="GST %">
   <input id="barcode" placeholder="Barcode">
-
   <button onclick="addProduct()">Add</button>
 </div>
 
 <!-- TABLE -->
-<table border="1" id="table" style="text-align:center; border-collapse:collapse;">
-</table>
+<table border="1" id="table" style="margin-top:20px; text-align:center; border-collapse:collapse;"></table>
 
 <script type="module" src="js/products.js"></script>
 
