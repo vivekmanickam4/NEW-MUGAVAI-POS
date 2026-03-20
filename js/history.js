@@ -1,11 +1,14 @@
 import { db } from "./firebase.js";
 import {
-  collection, getDocs, deleteDoc, doc
+  collection,
+  getDocs,
+  deleteDoc,
+  doc,
+  getDoc
 } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
 
 /* LOAD TABLE */
 async function load() {
-
   const table = document.getElementById("historyTable");
 
   table.innerHTML = `
@@ -47,18 +50,23 @@ async function load() {
   });
 }
 
+/* GET SINGLE BILL */
+async function getBill(id) {
+  const ref = doc(db, "bills", id);
+  const snap = await getDoc(ref);
+
+  if (!snap.exists()) {
+    alert("Bill not found");
+    return null;
+  }
+
+  return snap.data();
+}
+
 /* PREVIEW */
-window.previewBill = async function(id){
-
-  const snap = await getDocs(collection(db,"bills"));
-
-  let bill = null;
-
-  snap.forEach(d=>{
-    if(d.id === id) bill = d.data();
-  });
-
-  if(!bill) return;
+window.previewBill = async function (id) {
+  const bill = await getBill(id);
+  if (!bill) return;
 
   let html = `
     <h2>INVOICE</h2>
@@ -67,22 +75,22 @@ window.previewBill = async function(id){
 
     <table border="1" style="width:100%; text-align:center">
       <tr>
-       <th>Name</th>
-<th>Qty</th>
-<th>Price</th>
-<th>GST</th>
-<th>Total</th>
+        <th>Name</th>
+        <th>Qty</th>
+        <th>Price</th>
+        <th>GST</th>
+        <th>Total</th>
       </tr>
   `;
 
-  bill.items.forEach(i=>{
+  bill.items.forEach(i => {
     html += `
       <tr>
         <td>${i.name}</td>
         <td>${i.qty || 1}</td>
-<td>${i.price}</td>
-<td>${i.gst}%</td>
-<td>${i.total}</td>
+        <td>${i.price}</td>
+        <td>${i.gst}%</td>
+        <td>${i.total}</td>
       </tr>
     `;
   });
@@ -97,15 +105,9 @@ window.previewBill = async function(id){
 };
 
 /* PRINT */
-window.printInvoice = async function(id){
-
-  const snap = await getDocs(collection(db,"bills"));
-
-  let bill = null;
-
-  snap.forEach(d=>{
-    if(d.id === id) bill = d.data();
-  });
+window.printInvoice = async function (id) {
+  const bill = await getBill(id);
+  if (!bill) return;
 
   let html = `
   <html>
@@ -116,22 +118,22 @@ window.printInvoice = async function(id){
 
     <table border="1" width="100%" style="text-align:center">
       <tr>
-  <th>Name</th>
-  <th>Qty</th>
-  <th>Price</th>
-  <th>GST</th>
-  <th>Total</th>
+        <th>Name</th>
+        <th>Qty</th>
+        <th>Price</th>
+        <th>GST</th>
+        <th>Total</th>
       </tr>
   `;
 
-  bill.items.forEach(i=>{
+  bill.items.forEach(i => {
     html += `
       <tr>
         <td>${i.name}</td>
         <td>${i.qty || 1}</td>
-<td>${i.price}</td>
-<td>${i.gst}%</td>
-<td>${i.total}</td>
+        <td>${i.price}</td>
+        <td>${i.gst}%</td>
+        <td>${i.total}</td>
       </tr>
     `;
   });
@@ -148,61 +150,55 @@ window.printInvoice = async function(id){
 };
 
 /* PDF */
-window.downloadBill = async function(id){
+window.downloadBill = async function (id) {
+  const bill = await getBill(id);
+  if (!bill) return;
 
   const { jsPDF } = window.jspdf;
+  const pdf = new jsPDF();
 
-  const snap = await getDocs(collection(db,"bills"));
-
-  let bill = null;
-
-  snap.forEach(d=>{
-    if(d.id === id) bill = d.data();
-  });
-
-  const doc = new jsPDF();
-
-  doc.text("INVOICE", 90, 20);
-  doc.text("Invoice: " + bill.invoiceNo, 20, 40);
-  doc.text("Customer: " + bill.customerName, 20, 50);
+  pdf.text("INVOICE", 90, 20);
+  pdf.text("Invoice: " + bill.invoiceNo, 20, 40);
+  pdf.text("Customer: " + bill.customerName, 20, 50);
 
   let y = 70;
 
-  bill.items.forEach(i=>{
-    doc.text(`${i.name} x${i.qty || 1} - ₹${i.total}`, 20, y);
+  bill.items.forEach(i => {
+    pdf.text(`${i.name} x${i.qty || 1} - ₹${i.total}`, 20, y);
     y += 10;
   });
 
-  doc.text("Total: ₹" + bill.total, 20, y+10);
+  pdf.text("Total: ₹" + bill.total, 20, y + 10);
 
-  doc.save(bill.invoiceNo + ".pdf");
+  pdf.save(bill.invoiceNo + ".pdf");
 };
 
 /* EXPORT ALL */
-window.exportAll = async function(){
-
+window.exportAll = async function () {
   const { jsPDF } = window.jspdf;
-  const doc = new jsPDF();
+  const pdf = new jsPDF();
 
-  const snap = await getDocs(collection(db,"bills"));
+  const snap = await getDocs(collection(db, "bills"));
 
   let y = 20;
 
-  doc.text("ALL BILL REPORT", 70, 10);
+  pdf.text("ALL BILL REPORT", 70, 10);
 
-  snap.forEach(d=>{
+  snap.forEach(d => {
     let b = d.data();
-    doc.text(`${b.invoiceNo} | ${b.customerName} | ₹${b.total}`, 10, y);
+    pdf.text(`${b.invoiceNo} | ${b.customerName} | ₹${b.total}`, 10, y);
     y += 10;
   });
 
-  doc.save("All_Bills.pdf");
+  pdf.save("All_Bills.pdf");
 };
 
 /* DELETE */
 window.delBill = async function (id) {
   await deleteDoc(doc(db, "bills", id));
-  location.reload();
+  alert("Deleted!");
+  load();
 };
 
+/* INIT */
 load();
