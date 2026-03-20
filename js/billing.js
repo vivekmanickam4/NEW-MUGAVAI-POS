@@ -5,18 +5,12 @@ import {
   addDoc,
   getDocs
 } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
-import { onSnapshot } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
-
-function loadProducts() {
-  onSnapshot(collection(db, "products"), snap => {
-    productCache = [];
-    snap.forEach(doc => productCache.push(doc.data()));
-  });
-}
 
 // GLOBAL STATE
 let items = [];
 let productCache = [];
+
+// LOAD PRODUCTS (CACHE - FAST)
 async function loadProducts() {
   const snap = await getDocs(collection(db, "products"));
   productCache = [];
@@ -26,50 +20,54 @@ async function loadProducts() {
   });
 }
 
+// CALL ON PAGE LOAD
+loadProducts();
+
 // AUTO GENERATE INVOICE NUMBER
-document.getElementById("invNo").innerText = "INV-" + new Date().toLocaleString();
+document.getElementById("invNo").innerText =
+  "INV-" + new Date().toLocaleString();
 
-// BARCODE SCAN
+// BARCODE SCAN (FAST)
+document
+  .getElementById("barcodeInput")
+  .addEventListener("change", function () {
+    const code = this.value;
+    this.value = "";
 
-document.getElementById("barcodeInput").addEventListener("change", function () {
-  const code = this.value;
-  this.value = "";
+    const product = productCache.find(p => p.barcode == code);
 
-  const product = productCache.find(p => p.barcode == code);
+    if (!product) {
+      alert("Product not found");
+      return;
+    }
 
-  if (!product) {
-    alert("Product not found");
-    return;
-  }
-
-  addProduct(product);
-});
-
+    addProduct(product);
+  });
 
 // ADD PRODUCT (MERGE QTY IF EXISTS)
 function addProduct(product) {
   let existing = items.find(i => i.name === product.name);
 
   if (existing) {
-    existing.qty += 1;
-   const gstAmount = (existing.price * existing.gst) / 100;
-existing.total = existing.qty * (existing.price + gstAmount);
+    existing.qty++;
+
+    const gstAmount = (existing.price * existing.gst) / 100;
+    existing.total =
+      existing.qty * (existing.price + gstAmount);
   } else {
     const gstAmount = (product.price * product.gst) / 100;
 
-items.push({
-  name: product.name,
-  price: product.price,
-  gst: product.gst,
-  qty: 1,
-  total: product.price + gstAmount
-});
-    
+    items.push({
+      name: product.name,
+      price: product.price,
+      gst: product.gst,
+      qty: 1,
+      total: product.price + gstAmount
+    });
   }
 
   render();
 }
-
 
 // RENDER TABLE
 function render() {
@@ -109,27 +107,29 @@ function render() {
     `;
   });
 
-  document.getElementById("total").innerText = grand.toFixed(2);
+  document.getElementById("total").innerText =
+    grand.toFixed(2);
 }
 
-
-// BUTTON FUNCTIONS
+// INCREMENT
 window.inc = function (i) {
   items[i].qty++;
 
   const gstAmount = (items[i].price * items[i].gst) / 100;
-  items[i].total = items[i].qty * (items[i].price + gstAmount);
+  items[i].total =
+    items[i].qty * (items[i].price + gstAmount);
 
   render();
 };
 
+// DECREMENT
 window.dec = function (i) {
   if (items[i].qty > 1) {
     items[i].qty--;
 
     const gstAmount = (items[i].price * items[i].gst) / 100;
-    items[i].total = items[i].qty * (items[i].price + gstAmount);
-
+    items[i].total =
+      items[i].qty * (items[i].price + gstAmount);
   } else {
     items.splice(i, 1);
   }
@@ -137,19 +137,21 @@ window.dec = function (i) {
   render();
 };
 
+// REMOVE ITEM
 window.removeItem = function (i) {
   items.splice(i, 1);
   render();
 };
 
-
 // SAVE BILL
 window.saveBill = async function () {
   const customer = document.getElementById("customerName").value;
-if (!customer) {
-  alert("Enter customer name");
-  return;
-}
+
+  if (!customer) {
+    alert("Enter customer name");
+    return;
+  }
+
   if (items.length === 0) {
     alert("No items added!");
     return;
@@ -159,17 +161,16 @@ if (!customer) {
   const invoiceNo = document.getElementById("invNo").innerText;
 
   await addDoc(collection(db, "bills"), {
-  invoiceNo,
-  customerName: customer,
-  items,
-  total,
-  createdAt: new Date()
-});
+    invoiceNo,
+    customerName: customer,
+    items,
+    total,
+    createdAt: new Date()
+  });
 
   alert("Bill Saved!");
   location.reload();
 };
-
 
 // PRINT INVOICE
 window.printInvoice = function () {
