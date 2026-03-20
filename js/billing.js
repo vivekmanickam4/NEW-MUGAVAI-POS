@@ -1,4 +1,3 @@
-// IMPORTS
 import { db } from "./firebase.js";
 import {
   collection,
@@ -6,43 +5,10 @@ import {
   getDocs
 } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
 
-/AUTO LOAD CART/
-
-let billItems = [];
-
-window.addEventListener("load", () => {
-
-  const data = JSON.parse(localStorage.getItem("cart")) || [];
-
-  if (data.length === 0) return;
-
-  billItems = data;
-
-  billItems.forEach(p => addProduct(p));
-
-});
-
-// AUTO ADD FROM PRODUCTS PAGE
-window.addEventListener("load", () => {
-
-  const data = localStorage.getItem("selectedProduct");
-
-  if (!data) return;
-
-  const product = JSON.parse(data);
-
-  // Add product to billing
-  addProduct(product);
-
-  // Clear after use
-  localStorage.removeItem("selectedProduct");
-});
-
-// GLOBAL STATE
 let items = [];
 let productCache = [];
 
-// LOAD PRODUCTS (CACHE - FAST)
+/* LOAD PRODUCTS CACHE */
 async function loadProducts() {
   const snap = await getDocs(collection(db, "products"));
   productCache = [];
@@ -51,70 +17,78 @@ async function loadProducts() {
     productCache.push(doc.data());
   });
 }
-
-// CALL ON PAGE LOAD
 loadProducts();
 
-// AUTO GENERATE INVOICE NUMBER
-function generateInvoice() {
-  const now = new Date();
+/* LOAD CART */
+window.addEventListener("load", () => {
+  const cart = JSON.parse(localStorage.getItem("cart")) || [];
 
-  const dd = String(now.getDate()).padStart(2, "0");
-  const mm = String(now.getMonth() + 1).padStart(2, "0");
-  const yyyy = now.getFullYear();
-
-  const hh = String(now.getHours()).padStart(2, "0");
-  const min = String(now.getMinutes()).padStart(2, "0");
-
-  return `INV-${dd}${mm}${yyyy}-${hh}${min}`;
-}
-
-document.getElementById("invNo").innerText = generateInvoice();
-
-// BARCODE SCAN (FAST)
-document
-  .getElementById("barcodeInput")
-  .addEventListener("change", function () {
-    const code = this.value;
-    this.value = "";
-
-    const product = productCache.find(p => p.barcode == code);
-
-    if (!product) {
-      alert("Product not found");
-      return;
-    }
-
-    addProduct(product);
+  cart.forEach(p => {
+    items.push(p);
   });
 
-// ADD PRODUCT (MERGE QTY IF EXISTS)
+  render();
+});
+
+/* INVOICE */
+function generateInvoice() {
+  const now = new Date();
+  return "INV-" + now.getTime();
+}
+document.getElementById("invNo").innerText = generateInvoice();
+
+/* BARCODE */
+document.getElementById("barcodeInput")
+.addEventListener("change", function () {
+
+  const code = this.value;
+  this.value = "";
+
+  const product = productCache.find(p => p.barcode == code);
+
+  if (!product) {
+    alert("Product not found");
+    return;
+  }
+
+  addProduct(product);
+});
+
+/* ADD PRODUCT */
 function addProduct(product) {
+
   let existing = items.find(i => i.name === product.name);
 
   if (existing) {
     existing.qty++;
 
-    const gstAmount = (existing.price * existing.gst) / 100;
-    existing.total =
-      existing.qty * (existing.price + gstAmount);
+    const gst = (existing.price * existing.gst) / 100;
+    existing.total = existing.qty * (existing.price + gst);
+
   } else {
-    const gstAmount = (product.price * product.gst) / 100;
+    const gst = (product.price * product.gst) / 100;
 
     items.push({
       name: product.name,
       price: product.price,
       gst: product.gst,
       qty: 1,
-      total: product.price + gstAmount
+      total: product.price + gst
     });
   }
 
+  saveCart();
   render();
 }
 
-// RENDER TABLE
+/* SAVE CART */
+function saveCart() {
+  localStorage.setItem("cart", JSON.stringify(items));
+}
+
+/* RENDER */
 function render() {
+
   const table = document.getElementById("billTable");
 
   table.innerHTML = `
@@ -128,121 +102,87 @@ function render() {
     </tr>
   `;
 
-  let grand = 0;
+  let total = 0;
 
-  items.forEach((item, index) => {
-    grand += item.total;
+  items.forEach((item, i) => {
+    total += item.total;
 
     table.innerHTML += `
       <tr>
         <td>${item.name}</td>
         <td>
-          <button onclick="dec(${index})">-</button>
+          <button onclick="dec(${i})">-</button>
           ${item.qty}
-          <button onclick="inc(${index})">+</button>
+          <button onclick="inc(${i})">+</button>
         </td>
         <td>${item.price}</td>
         <td>${item.gst}%</td>
         <td>${item.total.toFixed(2)}</td>
-        <td>
-          <button onclick="removeItem(${index})">🗑</button>
-        </td>
+        <td><button onclick="removeItem(${i})">🗑</button></td>
       </tr>
     `;
   });
 
-  document.getElementById("total").innerText =
-    grand.toFixed(2);
+  document.getElementById("total").innerText = total.toFixed(2);
 }
 
-// INCREMENT
-window.inc = function (i) {
+/* CONTROLS */
+window.inc = (i) => {
   items[i].qty++;
-
-  const gstAmount = (items[i].price * items[i].gst) / 100;
-  items[i].total =
-    items[i].qty * (items[i].price + gstAmount);
-
-  render();
+  addProduct(items[i]);
 };
 
-// DECREMENT
-window.dec = function (i) {
+window.dec = (i) => {
   if (items[i].qty > 1) {
     items[i].qty--;
-
-    const gstAmount = (items[i].price * items[i].gst) / 100;
-    items[i].total =
-      items[i].qty * (items[i].price + gstAmount);
   } else {
     items.splice(i, 1);
   }
-
+  saveCart();
   render();
 };
 
-// REMOVE ITEM
-window.removeItem = function (i) {
+window.removeItem = (i) => {
   items.splice(i, 1);
+  saveCart();
   render();
 };
 
-// SAVE BILL
+/* CLEAR */
+window.clearBill = () => {
+  if (!confirm("Clear all items?")) return;
+
+  items = [];
+  localStorage.removeItem("cart");
+  render();
+};
+
+/* SAVE BILL */
 window.saveBill = async function () {
   const customer = document.getElementById("customerName").value;
 
-  if (!customer) {
-    alert("Enter customer name");
-    return;
-  }
+  if (!customer) return alert("Enter customer name");
+  if (items.length === 0) return alert("No items");
 
-  if (items.length === 0) {
-    alert("No items added!");
-    return;
-  }
-
-  const total = items.reduce((sum, item) => sum + item.total, 0);
-  const invoiceNo = document.getElementById("invNo").innerText;
+  const total = items.reduce((s, i) => s + i.total, 0);
 
   await addDoc(collection(db, "bills"), {
-    invoiceNo,
+    invoiceNo: document.getElementById("invNo").innerText,
     customerName: customer,
     items,
     total,
     createdAt: new Date()
   });
 
-  alert("Bill Saved!");
-  location.reload();
+  alert("Saved ✅");
+  clearBill();
 };
 
-// PRINT INVOICE
-window.printInvoice = function () {
+/* PRINT */
+window.printInvoice = () => {
   const content = document.getElementById("invoice").innerHTML;
-
   let win = window.open();
-
-  win.document.write(`
-    <html>
-      <body onload="window.print()">
-        ${content}
-      </body>
-    </html>
-  `);
+  win.document.write(`<body onload="window.print()">${content}</body>`);
 };
 
-/*CLEAR BUTTON*/
-window.clearBill = function () {
-
-  if (!confirm("Clear all items?")) return;
-
-  localStorage.removeItem("cart");
-
-  // Clear UI
-  location.reload();
-};
-
-/* BACK BUTTON */
-window.goBack = function () {
-  window.history.back();
-};
+window.goBack = () => window.history.back();
