@@ -12,8 +12,7 @@ let items = [];
 
 
 // AUTO GENERATE INVOICE NUMBER
-document.getElementById("invNo").innerText = "INV-" + Date.now();
-
+document.getElementById("invNo").innerText = "INV-" + new Date().toLocaleString();
 
 // BARCODE SCAN
 document.getElementById("barcodeInput").addEventListener("change", async function () {
