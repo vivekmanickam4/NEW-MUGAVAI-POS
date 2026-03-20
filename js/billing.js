@@ -100,17 +100,24 @@ function render() {
 // BUTTON FUNCTIONS
 window.inc = function (i) {
   items[i].qty++;
-  items[i].total = items[i].qty * items[i].price;
+
+  const gstAmount = (items[i].price * items[i].gst) / 100;
+  items[i].total = items[i].qty * (items[i].price + gstAmount);
+
   render();
 };
 
 window.dec = function (i) {
   if (items[i].qty > 1) {
     items[i].qty--;
-    items[i].total = items[i].qty * items[i].price;
+
+    const gstAmount = (items[i].price * items[i].gst) / 100;
+    items[i].total = items[i].qty * (items[i].price + gstAmount);
+
   } else {
     items.splice(i, 1);
   }
+
   render();
 };
 
