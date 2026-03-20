@@ -76,6 +76,20 @@ window.delProduct = async function (id) {
   load();
 };
 
+// SEARCH FUNCTION
+window.searchProduct = function () {
+  const input = document.getElementById("search").value.toLowerCase();
+  const rows = document.querySelectorAll("#table tr");
+
+  rows.forEach((row, index) => {
+    if (index === 0) return; // skip header
+
+    const text = row.innerText.toLowerCase();
+
+    row.style.display = text.includes(input) ? "" : "none";
+  });
+};
+
 /* BACK BUTTON */
 window.goBack = function () {
   window.history.back();
