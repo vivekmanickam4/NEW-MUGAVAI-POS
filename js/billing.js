@@ -24,8 +24,20 @@ async function loadProducts() {
 loadProducts();
 
 // AUTO GENERATE INVOICE NUMBER
-document.getElementById("invNo").innerText =
-  "INV-" + new Date().toLocaleString();
+function generateInvoice() {
+  const now = new Date();
+
+  const dd = String(now.getDate()).padStart(2, "0");
+  const mm = String(now.getMonth() + 1).padStart(2, "0");
+  const yyyy = now.getFullYear();
+
+  const hh = String(now.getHours()).padStart(2, "0");
+  const min = String(now.getMinutes()).padStart(2, "0");
+
+  return `INV-${dd}${mm}${yyyy}-${hh}${min}`;
+}
+
+document.getElementById("invNo").innerText = generateInvoice();
 
 // BARCODE SCAN (FAST)
 document
