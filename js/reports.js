@@ -13,7 +13,11 @@ async function load(){
 
   snap.forEach(d=>{
     let b = d.data();
-    let date = new Date(b.createdAt.seconds * 1000);
+    if (!b.createdAt) return;
+
+let date = b.createdAt.seconds
+  ? new Date(b.createdAt.seconds * 1000)
+  : new Date(b.createdAt);
 
     // TODAY
     if(date.toDateString() === now.toDateString()){
