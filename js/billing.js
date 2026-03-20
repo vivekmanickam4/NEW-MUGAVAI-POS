@@ -130,11 +130,12 @@ window.saveBill = async function () {
   const invoiceNo = document.getElementById("invNo").innerText;
 
   await addDoc(collection(db, "bills"), {
-    invoiceNo,
-    customerName: customer,
-    items,
-    total
-  });
+  invoiceNo,
+  customerName: customer,
+  items,
+  total,
+  createdAt: new Date()
+});
 
   alert("Bill Saved!");
   location.reload();
