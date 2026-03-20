@@ -198,3 +198,8 @@ window.printInvoice = function () {
     </html>
   `);
 };
+
+/* BACK BUTTON */
+window.goBack = function () {
+  window.history.back();
+};
