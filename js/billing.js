@@ -6,6 +6,22 @@ import {
   getDocs
 } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
 
+// AUTO ADD FROM PRODUCTS PAGE
+window.addEventListener("load", () => {
+
+  const data = localStorage.getItem("selectedProduct");
+
+  if (!data) return;
+
+  const product = JSON.parse(data);
+
+  // Add product to billing
+  addProduct(product);
+
+  // Clear after use
+  localStorage.removeItem("selectedProduct");
+});
+
 // GLOBAL STATE
 let items = [];
 let productCache = [];
