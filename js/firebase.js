@@ -106,48 +106,6 @@ snap.forEach(d => {
   });
 };
 
-/* REMOVE */
-window.removeItem = function (i, price) {
-  document.getElementById(`row-${i}`).remove();
-  total -= price;
-  total = Math.max(total, 0);
-  document.getElementById("total").innerText = total.toFixed(2);
-};
-
-/* INVOICE */
-function generateInvoiceNo() {
-  return "INV-" + Date.now();
-}
-
-/* SAVE BILL */
-window.saveBill = async function () {
-  const customerName = document.getElementById("customerName").value;
-
-  if (!customerName) return alert("Enter name");
-
-  await addDoc(collection(db, "bills"), {
-    invoiceNo: invNo.innerText,
-    customerName,
-    items: billItems,
-    total,
-    createdAt: new Date()
-  });
-
-  alert("Saved ✅");
-
-  billTable.innerHTML = `
-    <tr>
-      <th>Name</th><th>Price</th><th>GST</th><th>Total</th><th>Action</th>
-    </tr>
-  `;
-
-  total = 0;
-  billItems = [];
-
-  document.getElementById("total").innerText = "0";
-  document.getElementById("invNo").innerText = generateInvoiceNo();
-};
-
 /* BARCODE */
 let productCache = [];
 
