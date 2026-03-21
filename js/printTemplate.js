@@ -29,7 +29,7 @@ export function getInvoiceHTML(bill, isThermal = false) {
     return `
     <div style="width:260px; font-family:monospace; font-size:12px;">
 
-      <center><b>My Store</b></center>
+      <center><b>NEW MUGAVAI MANICKAM MALIGAI</b></center>
       <center>GST No: XXXXXXXXXXXXX</center>
 
       <p>${date}</p>
