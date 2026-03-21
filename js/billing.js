@@ -56,6 +56,10 @@ function generateInvoice() {
   return `INV-${dd}-${mm}-${yyyy}-${hh}:${min}`; // ✅ better format
 }
 
+/*GST TOGGLE*/
+document.getElementById("gstToggle")
+.addEventListener("change", render);
+
 /* BARCODE SCAN */
 document.getElementById("barcodeInput")
 .addEventListener("change", function () {
@@ -80,26 +84,18 @@ function addProduct(product) {
 
   if (existing) {
     existing.qty++;
-
-    const gst = (existing.price * existing.gst) / 100;
-    existing.total = existing.qty * (existing.price + gst);
-
   } else {
-    const gst = (product.price * product.gst) / 100;
-
     items.push({
       name: product.name,
       price: product.price,
       gst: product.gst,
-      qty: 1,
-      total: product.price + gst
+      qty: 1
     });
   }
 
   saveCart();
   render();
 }
-
 /* SAVE CART */
 function saveCart() {
   localStorage.setItem("cart", JSON.stringify(items));
@@ -121,10 +117,20 @@ function render() {
     </tr>
   `;
 
-  let total = 0;
+  let subtotal = 0;
+  let gstTotal = 0;
+
+  const gstEnabled = document.getElementById("gstToggle").checked;
 
   items.forEach((item, i) => {
-    total += item.total;
+
+    let itemSubtotal = item.price * item.qty;
+    let itemGST = gstEnabled ? (itemSubtotal * item.gst) / 100 : 0;
+
+    let itemTotal = itemSubtotal + itemGST;
+
+    subtotal += itemSubtotal;
+    gstTotal += itemGST;
 
     table.innerHTML += `
       <tr>
@@ -135,23 +141,27 @@ function render() {
           <button onclick="inc(${i})">+</button>
         </td>
         <td>${item.price}</td>
-        <td>${item.gst}%</td>
-        <td>${item.total.toFixed(2)}</td>
+        <td>${gstEnabled ? item.gst + "%" : "0%"}</td>
+        <td>${itemTotal.toFixed(2)}</td>
         <td><button onclick="removeItem(${i})">🗑</button></td>
       </tr>
     `;
   });
 
+  let total = subtotal + gstTotal;
+
+  document.getElementById("subtotal").innerText = subtotal.toFixed(2);
+  document.getElementById("gstTotal").innerText = gstTotal.toFixed(2);
   document.getElementById("total").innerText = total.toFixed(2);
+
+  // ✅ HIDE GST ROW
+  document.getElementById("gstRow").style.display =
+    gstEnabled ? "block" : "none";
 }
 
 /* CONTROLS */
 window.inc = (i) => {
   items[i].qty++;
-
-  const gst = (items[i].price * items[i].gst) / 100;
-  items[i].total = items[i].qty * (items[i].price + gst);
-
   saveCart();
   render();
 };
@@ -159,14 +169,9 @@ window.inc = (i) => {
 window.dec = (i) => {
   if (items[i].qty > 1) {
     items[i].qty--;
-
-    const gst = (items[i].price * items[i].gst) / 100;
-    items[i].total = items[i].qty * (items[i].price + gst);
-
   } else {
     items.splice(i, 1);
   }
-
   saveCart();
   render();
 };
@@ -190,16 +195,31 @@ window.clearBill = () => {
 window.saveBill = async function () {
 
   const customer = document.getElementById("customerName").value;
+  const gstEnabled = document.getElementById("gstToggle").checked;
 
   if (!customer) return alert("Enter customer name");
   if (items.length === 0) return alert("No items");
 
-  const total = items.reduce((s, i) => s + i.total, 0);
+  let subtotal = 0;
+  let gstTotal = 0;
+
+  items.forEach(i => {
+    let sub = i.price * i.qty;
+    let gst = gstEnabled ? (sub * i.gst) / 100 : 0;
+
+    subtotal += sub;
+    gstTotal += gst;
+  });
+
+  let total = subtotal + gstTotal;
 
   await addDoc(collection(db, "bills"), {
     invoiceNo: document.getElementById("invNo").innerText,
     customerName: customer,
     items,
+    subtotal,
+    gst: gstTotal,
+    gstEnabled,
     total,
     createdAt: new Date()
   });
@@ -207,7 +227,6 @@ window.saveBill = async function () {
   alert("Saved ✅");
   clearBill();
 };
-
 /* PRINT */
 window.printInvoice = () => {
   const content = document.getElementById("invoice").innerHTML;
