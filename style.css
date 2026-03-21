@@ -43,3 +43,17 @@ a {
     width: auto;
   }
 }
+
+.billing-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+}
+
+.toggle {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-weight: bold;
+}
