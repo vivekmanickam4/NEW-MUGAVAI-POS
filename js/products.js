@@ -117,19 +117,21 @@ search.addEventListener("input", () => {
 
       let existing = cart.find(item => item.barcode === p.barcode);
 
-      if (existing) {
-        existing.qty += 1;
-        const gstAmount = (existing.price * existing.gst) / 100;
-existing.total = existing.qty * (existing.price + gstAmount);
-      } else {
-        const gstAmount = (p.price * p.gst) / 100;
+     if (existing) {
+  existing.qty += 1;
 
-cart.push({
-  ...p,
-  qty: 1,
-  total: p.price + gstAmount
-});
-      }
+  const gstAmount = (existing.price * existing.gst) / 100;
+  existing.total = existing.qty * (existing.price + gstAmount);
+
+} else {
+  const gstAmount = (p.price * p.gst) / 100;
+
+  cart.push({
+    ...p,
+    qty: 1,
+    total: p.price + gstAmount
+  });
+}
 
       localStorage.setItem("cart", JSON.stringify(cart));
 
