@@ -21,23 +21,28 @@ loadProducts();
 
 /* LOAD CART */
 window.addEventListener("load", () => {
+
   const cart = JSON.parse(localStorage.getItem("cart")) || [];
 
   cart.forEach(p => {
+    const gstAmount = (p.price * p.gst) / 100;
 
-  const gstAmount = (p.price * p.gst) / 100;
-
-  items.push({
-    name: p.name,
-    price: p.price,
-    gst: p.gst,
-    qty: p.qty,
-    total: p.qty * (p.price + gstAmount)
+    items.push({
+      name: p.name,
+      price: p.price,
+      gst: p.gst,
+      qty: p.qty,
+      total: p.qty * (p.price + gstAmount)
+    });
   });
 
+  render(); // ✅ IMPORTANT
+
+  // ✅ INVOICE
+  document.getElementById("invNo").innerText = generateInvoice();
 });
 
-/* INVOICE */
+/* INVOICE FORMAT */
 function generateInvoice() {
   const now = new Date();
 
@@ -48,11 +53,10 @@ function generateInvoice() {
   const hh = String(now.getHours()).padStart(2, "0");
   const min = String(now.getMinutes()).padStart(2, "0");
 
-  return `INV-${dd}${mm}${yyyy}-${hh}${min}`;
+  return `INV-${dd}-${mm}-${yyyy}-${hh}:${min}`; // ✅ better format
 }
-document.getElementById("invNo").innerText = generateInvoice();
 
-/* BARCODE */
+/* BARCODE SCAN */
 document.getElementById("barcodeInput")
 .addEventListener("change", function () {
 
@@ -145,8 +149,8 @@ function render() {
 window.inc = (i) => {
   items[i].qty++;
 
-  const gstAmount = (items[i].price * items[i].gst) / 100;
-  items[i].total = items[i].qty * (items[i].price + gstAmount);
+  const gst = (items[i].price * items[i].gst) / 100;
+  items[i].total = items[i].qty * (items[i].price + gst);
 
   saveCart();
   render();
@@ -155,11 +159,14 @@ window.inc = (i) => {
 window.dec = (i) => {
   if (items[i].qty > 1) {
     items[i].qty--;
-     const gstAmount = (items[i].price * items[i].gst) / 100;
-  items[i].total = items[i].qty * (items[i].price + gstAmount);
+
+    const gst = (items[i].price * items[i].gst) / 100;
+    items[i].total = items[i].qty * (items[i].price + gst);
+
   } else {
     items.splice(i, 1);
   }
+
   saveCart();
   render();
 };
@@ -170,7 +177,7 @@ window.removeItem = (i) => {
   render();
 };
 
-/* CLEAR */
+/* CLEAR BILL */
 window.clearBill = () => {
   if (!confirm("Clear all items?")) return;
 
@@ -181,6 +188,7 @@ window.clearBill = () => {
 
 /* SAVE BILL */
 window.saveBill = async function () {
+
   const customer = document.getElementById("customerName").value;
 
   if (!customer) return alert("Enter customer name");
@@ -203,6 +211,7 @@ window.saveBill = async function () {
 /* PRINT */
 window.printInvoice = () => {
   const content = document.getElementById("invoice").innerHTML;
+
   let win = window.open();
   win.document.write(`<body onload="window.print()">${content}</body>`);
 };
