@@ -62,8 +62,6 @@ if (bill.createdAt?.seconds) {
   </div>
   `;
 }
-
-  return `
     return `
 <div style="padding:20px;font-family:Arial">
 
