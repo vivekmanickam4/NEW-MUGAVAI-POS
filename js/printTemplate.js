@@ -2,65 +2,75 @@ export function getInvoiceHTML(bill, isThermal = false) {
 
   const date = new Date(bill.createdAt || new Date()).toLocaleString();
 
-  let itemsHTML = "";
+  let rows = "";
+  let subtotal = 0;
+  let gstTotal = 0;
 
-  bill.items.forEach(item => {
-    let subtotal = item.price * item.qty;
-    let gst = bill.gstEnabled ? (subtotal * item.gst) / 100 : 0;
-    let total = subtotal + gst;
+  bill.items.forEach(i => {
 
-    itemsHTML += `
+    let sub = i.price * i.qty;
+    let gst = bill.gstEnabled ? (sub * i.gst) / 100 : 0;
+
+    subtotal += sub;
+    gstTotal += gst;
+
+    rows += `
       <tr>
-        <td>${item.name}</td>
-        <td>${item.qty}</td>
-        <td>${item.price}</td>
-        <td>${total.toFixed(2)}</td>
+        <td>${i.name}</td>
+        <td>${i.hsn || "-"}</td>
+        <td>${i.qty}</td>
+        <td>${i.price}</td>
+        <td>${i.gst}%</td>
+        <td>${(sub + gst).toFixed(2)}</td>
       </tr>
     `;
   });
 
-  // 🔥 THERMAL STYLE
+  let total = subtotal + gstTotal;
+
   if (isThermal) {
     return `
-    <div style="width:280px;font-family:monospace">
-      <h3 style="text-align:center">My Store</h3>
-      <p>${date}</p>
-      <p>Invoice: ${bill.invoiceNo}</p>
-      <p>Customer: ${bill.customerName}</p>
-      <hr/>
-      ${bill.items.map(i =>
-        `${i.name}<br>${i.qty} x ${i.price}`
-      ).join("<br>")}
-      <hr/>
-      <h3>Total: ₹${bill.total}</h3>
-      <p style="text-align:center">Thank you 🙏</p>
-    </div>
+      <div style="width:280px;font-family:monospace">
+        <center><b>My Store</b></center>
+        <p>${date}</p>
+        <p>Inv: ${bill.invoiceNo}</p>
+        <p>${bill.customerName}</p>
+        <hr>
+        ${bill.items.map(i => `${i.name} x${i.qty} ₹${i.price}`).join("<br>")}
+        <hr>
+        <b>Total ₹${total}</b>
+        <p style="text-align:center">Thank you 🙏</p>
+      </div>
     `;
   }
 
-  // 🧾 NORMAL INVOICE
   return `
-  <div style="font-family:Arial;padding:20px">
+    <div style="padding:20px;font-family:Arial">
 
-    <p><b>${date}</b></p>
+      <p><b>${date}</b></p>
 
-    <h2>INVOICE</h2>
+      <h2>INVOICE</h2>
 
-    <p>Invoice: ${bill.invoiceNo}</p>
-    <p>Customer: ${bill.customerName}</p>
+      <p>Invoice: ${bill.invoiceNo}</p>
+      <p>Customer: ${bill.customerName}</p>
 
-    <table border="1" width="100%" style="border-collapse:collapse;text-align:center">
-      <tr>
-        <th>Name</th>
-        <th>Qty</th>
-        <th>Price</th>
-        <th>Total</th>
-      </tr>
-      ${itemsHTML}
-    </table>
+      <table border="1" width="100%" style="border-collapse:collapse;text-align:center">
+        <tr>
+          <th>Name</th>
+          <th>HSN</th>
+          <th>Qty</th>
+          <th>Price</th>
+          <th>GST%</th>
+          <th>Total</th>
+        </tr>
+        ${rows}
+      </table>
 
-    <h3>Total ₹${bill.total}</h3>
+      <p>Subtotal: ₹${subtotal.toFixed(2)}</p>
+      <p>GST: ₹${gstTotal.toFixed(2)}</p>
 
-  </div>
+      <h3>Total ₹${total.toFixed(2)}</h3>
+
+    </div>
   `;
 }
