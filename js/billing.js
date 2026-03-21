@@ -24,10 +24,17 @@ window.addEventListener("load", () => {
   const cart = JSON.parse(localStorage.getItem("cart")) || [];
 
   cart.forEach(p => {
-    items.push(p);
+
+  const gstAmount = (p.price * p.gst) / 100;
+
+  items.push({
+    name: p.name,
+    price: p.price,
+    gst: p.gst,
+    qty: p.qty,
+    total: p.qty * (p.price + gstAmount)
   });
 
-  render();
 });
 
 /* INVOICE */
@@ -137,12 +144,19 @@ function render() {
 /* CONTROLS */
 window.inc = (i) => {
   items[i].qty++;
-  addProduct(items[i]);
+
+  const gstAmount = (items[i].price * items[i].gst) / 100;
+  items[i].total = items[i].qty * (items[i].price + gstAmount);
+
+  saveCart();
+  render();
 };
 
 window.dec = (i) => {
   if (items[i].qty > 1) {
     items[i].qty--;
+     const gstAmount = (items[i].price * items[i].gst) / 100;
+  items[i].total = items[i].qty * (items[i].price + gstAmount);
   } else {
     items.splice(i, 1);
   }
