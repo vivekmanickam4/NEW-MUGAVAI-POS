@@ -119,13 +119,16 @@ search.addEventListener("input", () => {
 
       if (existing) {
         existing.qty += 1;
-        existing.total = existing.qty * existing.price;
+        const gstAmount = (existing.price * existing.gst) / 100;
+existing.total = existing.qty * (existing.price + gstAmount);
       } else {
-        cart.push({
-          ...p,
-          qty: 1,
-          total: p.price
-        });
+        const gstAmount = (p.price * p.gst) / 100;
+
+cart.push({
+  ...p,
+  qty: 1,
+  total: p.price + gstAmount
+});
       }
 
       localStorage.setItem("cart", JSON.stringify(cart));
