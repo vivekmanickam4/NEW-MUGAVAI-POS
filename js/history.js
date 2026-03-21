@@ -6,6 +6,7 @@ import {
   doc,
   getDoc
 } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
+
 import { getInvoiceHTML } from "./printTemplate.js";
 
 /* LOAD TABLE */
@@ -18,7 +19,7 @@ async function load() {
       <th>Customer</th>
       <th>Total</th>
       <th>Preview</th>
-      <th>Action</th>
+      <th>Actions</th>
     </tr>
   `;
 
@@ -34,15 +35,16 @@ async function load() {
         <td>₹${b.total.toFixed(2)}</td>
 
         <td>
-          <button onclick="previewBill('${d.id}')">View</button>
+          <button onclick="previewBill('${d.id}')">👁 View</button>
         </td>
 
         <td>
-          <button onclick="printInvoice('${d.id}')">Print</button>
-          <button onclick="downloadBill('${d.id}')">PDF</button>
+          <button onclick="printInvoice('${d.id}')">🖨 Print</button>
+          <button onclick="printThermal('${d.id}')">🧾 Thermal</button>
+          <button onclick="downloadBill('${d.id}')">📄 PDF</button>
           ${
             localStorage.getItem("role") === "admin"
-              ? `<button onclick="delBill('${d.id}')">Delete</button>`
+              ? `<button onclick="delBill('${d.id}')">🗑 Delete</button>`
               : ""
           }
         </td>
@@ -51,7 +53,7 @@ async function load() {
   });
 }
 
-/* GET SINGLE BILL */
+/* GET BILL */
 async function getBill(id) {
   const ref = doc(db, "bills", id);
   const snap = await getDoc(ref);
@@ -64,117 +66,84 @@ async function getBill(id) {
   return snap.data();
 }
 
-/* PREVIEW */
+/* 👁 PREVIEW (SAME DESIGN) */
 window.previewBill = async function (id) {
   const bill = await getBill(id);
   if (!bill) return;
 
-  let html = `
-    <h2>INVOICE</h2>
-    <p>Invoice: ${bill.invoiceNo}</p>
-    <p>Customer: ${bill.customerName}</p>
+  const html = getInvoiceHTML(bill, false);
 
-    <table border="1" style="width:100%; text-align:center">
-      <tr>
-        <th>Name</th>
-        <th>Qty</th>
-        <th>Price</th>
-        <th>GST</th>
-        <th>Total</th>
-      </tr>
-  `;
-
-  bill.items.forEach(i => {
-    html += `
-      <tr>
-        <td>${i.name}</td>
-        <td>${i.qty || 1}</td>
-        <td>${i.price}</td>
-        <td>${i.gst}%</td>
-        <td>${i.total}</td>
-      </tr>
-    `;
-  });
-
-  html += `
-    </table>
-    <h3>Total ₹${bill.total}</h3>
-  `;
-
-  let win = window.open();
+  let win = window.open("", "", "width=800,height=600");
   win.document.write(html);
 };
 
-/* PRINT */
+/* 🖨 PRINT (STANDARD INVOICE) */
 window.printInvoice = async function (id) {
   const bill = await getBill(id);
   if (!bill) return;
 
-  let html = `
-  <html>
-  <body onload="window.print()">
-    <h2>INVOICE</h2>
-    <p>Invoice: ${bill.invoiceNo}</p>
-    <p>Customer: ${bill.customerName}</p>
+  const html = getInvoiceHTML(bill, false);
 
-    <table border="1" width="100%" style="text-align:center">
-      <tr>
-        <th>Name</th>
-        <th>Qty</th>
-        <th>Price</th>
-        <th>GST</th>
-        <th>Total</th>
-      </tr>
-  `;
-
-  bill.items.forEach(i => {
-    html += `
-      <tr>
-        <td>${i.name}</td>
-        <td>${i.qty || 1}</td>
-        <td>${i.price}</td>
-        <td>${i.gst}%</td>
-        <td>${i.total}</td>
-      </tr>
-    `;
-  });
-
-  html += `
-    </table>
-    <h3>Total ₹${bill.total}</h3>
-  </body>
-  </html>
-  `;
-
-  let win = window.open();
-  win.document.write(html);
+  let win = window.open("", "", "width=800,height=600");
+  win.document.write(`<body onload="window.print()">${html}</body>`);
 };
 
-/* PDF */
+/* 🧾 THERMAL PRINT */
+window.printThermal = async function (id) {
+  const bill = await getBill(id);
+  if (!bill) return;
+
+  const html = getInvoiceHTML(bill, true);
+
+  let win = window.open("", "", "width=300,height=600");
+  win.document.write(`<body onload="window.print()">${html}</body>`);
+};
+
+/* 📄 PROPER PDF (formatted) */
 window.downloadBill = async function (id) {
   const bill = await getBill(id);
   if (!bill) return;
 
   const { jsPDF } = window.jspdf;
+
   const pdf = new jsPDF();
 
-  pdf.text("INVOICE", 90, 20);
-  pdf.text("Invoice: " + bill.invoiceNo, 20, 40);
-  pdf.text("Customer: " + bill.customerName, 20, 50);
+  let y = 20;
 
-  let y = 70;
+  pdf.setFontSize(16);
+  pdf.text("INVOICE", 90, y);
+
+  y += 10;
+  pdf.setFontSize(10);
+
+  pdf.text("Invoice: " + bill.invoiceNo, 10, y);
+  y += 8;
+
+  pdf.text("Customer: " + bill.customerName, 10, y);
+  y += 8;
+
+  pdf.text("Date: " + new Date(bill.createdAt).toLocaleString(), 10, y);
+  y += 10;
+
+  pdf.text("Item | Qty | Price | GST | Total", 10, y);
+  y += 8;
 
   bill.items.forEach(i => {
-    pdf.text(`${i.name} x${i.qty || 1} - ₹${i.total}`, 20, y);
-    y += 10;
+    pdf.text(
+      `${i.name} | ${i.qty} | ${i.price} | ${i.gst}% | ${i.total}`,
+      10,
+      y
+    );
+    y += 8;
   });
 
-  pdf.text("Total: ₹" + bill.total, 20, y + 10);
+  y += 10;
+  pdf.text("Total: ₹" + bill.total, 10, y);
 
   pdf.save(bill.invoiceNo + ".pdf");
 };
 
-/* EXPORT ALL */
+/* 📦 EXPORT ALL */
 window.exportAll = async function () {
   const { jsPDF } = window.jspdf;
   const pdf = new jsPDF();
@@ -194,17 +163,17 @@ window.exportAll = async function () {
   pdf.save("All_Bills.pdf");
 };
 
-/* DELETE */
+/* 🗑 DELETE */
 window.delBill = async function (id) {
+  if (!confirm("Delete this bill?")) return;
+
   await deleteDoc(doc(db, "bills", id));
   alert("Deleted!");
   load();
 };
 
-/* BACK BUTTON */
-window.goBack = function () {
-  window.history.back();
-};
+/* 🔙 BACK */
+window.goBack = () => window.history.back();
 
 /* INIT */
 load();
