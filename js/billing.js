@@ -262,4 +262,22 @@ window.printInvoice = () => {
   win.document.write(`<body onload="window.print()">${html}</body>`);
 };
 
+window.printThermal = () => {
+
+  const customer = document.getElementById("customerName").value;
+
+  const bill = {
+    invoiceNo: document.getElementById("invNo").innerText,
+    customerName: customer,
+    items,
+    total: document.getElementById("total").innerText,
+    createdAt: new Date()
+  };
+
+  const html = getInvoiceHTML(bill, true);
+
+  let win = window.open("", "", "width=300,height=600");
+  win.document.write(`<body onload="window.print()">${html}</body>`);
+};
+
 window.goBack = () => window.history.back();
