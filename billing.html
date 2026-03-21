@@ -4,57 +4,62 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Billing</title>
-
-  <!-- STYLES -->
   <link rel="stylesheet" href="style.css" />
 </head>
-<button onclick="goBack()">⬅ Back</button>
-<button onclick="clearBill()">🧹 Clear Bill</button>
+
 <body>
 
-  <h1>Billing</h1>
+<button onclick="goBack()">⬅ Back</button>
+<button onclick="clearBill()">🧹 Clear Bill</button>
 
-  <!-- INPUTS -->
+<h1>Billing</h1>
+
+<!-- 🔥 CONTROLS -->
+<div class="billing-controls">
   <input id="barcodeInput" placeholder="Scan barcode" />
   <input id="customerName" placeholder="Customer Name" />
 
-  <!-- INVOICE SECTION -->
-  <div id="invoice" style="border:2px solid black; padding:20px;">
+  <!-- ✅ GST TOGGLE -->
+  <label class="toggle">
+    <input type="checkbox" id="gstToggle" checked />
+    Include GST
+  </label>
+</div>
 
-    <h3>
-      Invoice: <span id="invNo"></span>
-    </h3>
+<!-- INVOICE -->
+<div id="invoice" style="border:2px solid black; padding:20px;">
 
-    <!-- BILL TABLE -->
-    <table
-      id="billTable"
-      border="1"
-      width="80%"
-      style="margin:auto; border-collapse:collapse; text-align:center;"
-    >
-      <tr>
-        <th>Name</th>
-        <th>Qty</th>
-        <th>Price</th>
-        <th>GST</th>
-        <th>Total</th>
-        <th>Action</th>
-      </tr>
-    </table>
+  <h2>My Store</h2>
+  <p>GST No: 22AAAAA0000A1Z5</p>
 
-    <!-- TOTAL -->
-    <h3>
-      Total ₹<span id="total">0</span>
-    </h3>
+  <h3>Invoice: <span id="invNo"></span></h3>
 
-  </div>
+  <table id="billTable">
+    <tr>
+      <th>Name</th>
+      <th>Qty</th>
+      <th>Price</th>
+      <th>GST</th>
+      <th>Total</th>
+      <th>Action</th>
+    </tr>
+  </table>
 
-  <!-- ACTION BUTTONS -->
-  <button onclick="saveBill()">Save Bill</button>
-  <button onclick="printInvoice()">Print</button>
+  <!-- ✅ TOTAL BREAKDOWN -->
+  <p>Subtotal: ₹<span id="subtotal">0</span></p>
 
-  <!-- SCRIPT -->
-  <script type="module" src="js/billing.js"></script>
+  <p id="gstRow">
+    GST: ₹<span id="gstTotal">0</span>
+  </p>
+
+  <h3>Total ₹<span id="total">0</span></h3>
+
+</div>
+
+<button onclick="saveBill()">Save Bill</button>
+<button onclick="printInvoice()">Print</button>
+
+<script type="module" src="js/billing.js"></script>
 
 </body>
 </html>
