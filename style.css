@@ -57,3 +57,20 @@ a {
   gap: 5px;
   font-weight: bold;
 }
+
+/*UI UPGRADE*/
+
+button {
+  border-radius: 6px;
+  border: none;
+  padding: 6px 10px;
+  cursor: pointer;
+}
+
+button:hover {
+  opacity: 0.8;
+}
+
+table {
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
