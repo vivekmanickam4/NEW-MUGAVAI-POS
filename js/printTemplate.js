@@ -35,48 +35,68 @@ if (bill.createdAt?.seconds) {
   let total = subtotal + gstTotal;
 
   if (isThermal) {
-    return `
-      <div style="width:280px;font-family:monospace">
-        <center><b>My Store</b></center>
-        <p>${date}</p>
-        <p>Inv: ${bill.invoiceNo}</p>
-        <p>${bill.customerName}</p>
-        <hr>
-        ${bill.items.map(i => `${i.name} x${i.qty} ₹${i.price}`).join("<br>")}
-        <hr>
-        <b>Total ₹${total}</b>
-        <p style="text-align:center">Thank you 🙏</p>
-      </div>
-    `;
-  }
+  return `
+  <div style="width:260px;font-family:monospace;font-size:12px">
+
+    <center><b>My Store</b></center>
+    <p>${date}</p>
+
+    <p>Inv: ${bill.invoiceNo}</p>
+    <p>CUSTOMER: ${bill.customerName}</p>
+
+    <hr>
+
+    ${bill.items.map(i => `
+      ${i.name}
+      <br>
+      ${i.qty} x ₹${i.price}
+      <br>
+    `).join("")}
+
+    <hr>
+
+    <b>Total ₹${bill.total}</b>
+
+    <center>Thank you 🙏</center>
+
+  </div>
+  `;
+}
 
   return `
-    <div style="padding:20px;font-family:Arial">
+    return `
+<div style="padding:20px;font-family:Arial">
 
-      <p><b>${date}</b></p>
+  <p><b>${date}</b></p>
 
-      <h2>INVOICE</h2>
+  <h2>INVOICE</h2>
 
-      <p>Invoice: ${bill.invoiceNo}</p>
-      <p>Customer: ${bill.customerName}</p>
+  <p><b>Invoice No:</b> ${bill.invoiceNo}</p>
+  <p><b>CUSTOMER :</b> ${bill.customerName}</p>
 
-      <table border="1" width="100%" style="border-collapse:collapse;text-align:center">
-        <tr>
-          <th>Name</th>
-          <th>HSN</th>
-          <th>Qty</th>
-          <th>Price</th>
-          <th>GST%</th>
-          <th>Total</th>
-        </tr>
-        ${rows}
-      </table>
+  <br>
 
-      <p>Subtotal: ₹${subtotal.toFixed(2)}</p>
-      <p>GST: ₹${gstTotal.toFixed(2)}</p>
+  <table border="1" width="100%" style="border-collapse:collapse;text-align:center">
+    <tr>
+      <th>Item's</th>
+      <th>Qty.</th>
+      <th>Price</th>
+    </tr>
 
-      <h3>Total ₹${total.toFixed(2)}</h3>
+    ${bill.items.map(i => `
+      <tr>
+        <td>${i.name}</td>
+        <td>${i.qty}</td>
+        <td>₹${i.price}</td>
+      </tr>
+    `).join("")}
 
-    </div>
-  `;
+  </table>
+
+  <br>
+
+  <h3>Total ₹${bill.total}</h3>
+
+</div>
+`;
 }
