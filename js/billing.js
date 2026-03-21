@@ -4,7 +4,7 @@ import {
   addDoc,
   getDocs
 } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
-
+import { getInvoiceHTML } from "./printTemplate.js";
 let items = [];
 let productCache = [];
 
@@ -229,10 +229,37 @@ window.saveBill = async function () {
 };
 /* PRINT */
 window.printInvoice = () => {
-  const content = document.getElementById("invoice").innerHTML;
 
-  let win = window.open();
-  win.document.write(`<body onload="window.print()">${content}</body>`);
+  const customer = document.getElementById("customerName").value;
+
+  const gstEnabled = document.getElementById("gstToggle").checked;
+
+  let subtotal = 0;
+  let gstTotal = 0;
+
+  items.forEach(i => {
+    let sub = i.price * i.qty;
+    let gst = gstEnabled ? (sub * i.gst) / 100 : 0;
+
+    subtotal += sub;
+    gstTotal += gst;
+  });
+
+  let total = subtotal + gstTotal;
+
+  const bill = {
+    invoiceNo: document.getElementById("invNo").innerText,
+    customerName: customer,
+    items,
+    total,
+    gstEnabled,
+    createdAt: new Date()
+  };
+
+  const html = getInvoiceHTML(bill, false); // normal invoice
+
+  let win = window.open("", "", "width=800,height=600");
+  win.document.write(`<body onload="window.print()">${html}</body>`);
 };
 
 window.goBack = () => window.history.back();
