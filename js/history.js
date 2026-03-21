@@ -6,6 +6,7 @@ import {
   doc,
   getDoc
 } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
+import { getInvoiceHTML } from "./printTemplate.js";
 
 /* LOAD TABLE */
 async function load() {
