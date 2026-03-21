@@ -2,7 +2,7 @@ import { db } from "./firebase.js";
 import {
   collection,
   addDoc,
-  getDocs
+  getDocs,doc, runTransaction
 } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
 import { getInvoiceHTML } from "./printTemplate.js";
 let items = [];
@@ -43,17 +43,25 @@ window.addEventListener("load", () => {
 });
 
 /* INVOICE FORMAT */
-function generateInvoice() {
-  const now = new Date();
+async function generateInvoiceNumber() {
 
-  const dd = String(now.getDate()).padStart(2, "0");
-  const mm = String(now.getMonth() + 1).padStart(2, "0");
-  const yyyy = now.getFullYear();
+  const ref = doc(db, "counters", "invoice");
 
-  const hh = String(now.getHours()).padStart(2, "0");
-  const min = String(now.getMinutes()).padStart(2, "0");
+  const newNumber = await runTransaction(db, async (transaction) => {
+    const snap = await transaction.get(ref);
 
-  return `INV-${dd}-${mm}-${yyyy}-${hh}:${min}`; // ✅ better format
+    if (!snap.exists()) {
+      transaction.set(ref, { current: 1 });
+      return 1;
+    }
+
+    const next = snap.data().current + 1;
+    transaction.update(ref, { current: next });
+
+    return next;
+  });
+
+  return `INV-NMMMS-${String(newNumber).padStart(7, "0")}`;
 }
 
 /*GST TOGGLE*/
