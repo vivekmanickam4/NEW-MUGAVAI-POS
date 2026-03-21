@@ -39,7 +39,9 @@ window.addEventListener("load", () => {
   render(); // ✅ IMPORTANT
 
   // ✅ INVOICE
-  document.getElementById("invNo").innerText = generateInvoice();
+  generateInvoiceNumber().then(inv => {
+  document.getElementById("invNo").innerText = inv;
+});
 });
 
 /* INVOICE FORMAT */
