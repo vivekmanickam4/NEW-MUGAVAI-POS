@@ -1,6 +1,12 @@
 export function getInvoiceHTML(bill, isThermal = false) {
 
-  const date = new Date(bill.createdAt || new Date()).toLocaleString();
+  let date = "";
+
+if (bill.createdAt?.seconds) {
+  date = new Date(bill.createdAt.seconds * 1000).toLocaleString();
+} else {
+  date = new Date().toLocaleString();
+}
 
   let rows = "";
   let subtotal = 0;
