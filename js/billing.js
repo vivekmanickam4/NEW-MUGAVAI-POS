@@ -2,13 +2,17 @@ import { db } from "./firebase.js";
 import {
   collection,
   addDoc,
-  getDocs,doc, runTransaction
+  getDocs,
+  doc,
+  runTransaction
 } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
+
 import { getInvoiceHTML } from "./printTemplate.js";
+
 let items = [];
 let productCache = [];
 
-/* LOAD PRODUCTS CACHE */
+/* LOAD PRODUCTS */
 async function loadProducts() {
   const snap = await getDocs(collection(db, "products"));
   productCache = [];
@@ -25,26 +29,22 @@ window.addEventListener("load", () => {
   const cart = JSON.parse(localStorage.getItem("cart")) || [];
 
   cart.forEach(p => {
-    const gstAmount = (p.price * p.gst) / 100;
-
     items.push({
       name: p.name,
       price: p.price,
       gst: p.gst,
-      qty: p.qty,
-      total: p.qty * (p.price + gstAmount)
+      qty: p.qty
     });
   });
 
-  render(); // ✅ IMPORTANT
+  render();
 
-  // ✅ INVOICE
   generateInvoiceNumber().then(inv => {
-  document.getElementById("invNo").innerText = inv;
-});
+    document.getElementById("invNo").innerText = inv;
+  });
 });
 
-/* INVOICE FORMAT */
+/* INVOICE NUMBER */
 async function generateInvoiceNumber() {
 
   const ref = doc(db, "counters", "invoice");
@@ -66,25 +66,22 @@ async function generateInvoiceNumber() {
   return `INV-NMMMS-${String(newNumber).padStart(7, "0")}`;
 }
 
-/*GST TOGGLE*/
+/* GST TOGGLE */
 document.getElementById("gstToggle")
-.addEventListener("change", render);
+  .addEventListener("change", render);
 
-/* BARCODE SCAN */
+/* BARCODE */
 document.getElementById("barcodeInput")
-.addEventListener("change", function () {
+  .addEventListener("change", function () {
 
-  const code = this.value;
-  this.value = "";
+    const code = this.value;
+    this.value = "";
 
-  const product = productCache.find(p => p.barcode == code);
+    const product = productCache.find(p => p.barcode == code);
 
-  if (!product) {
-    alert("Product not found");
-    return;
-  }
+    if (!product) return alert("Product not found");
 
-  addProduct(product);
+    addProduct(product);
 });
 
 /* ADD PRODUCT */
@@ -106,6 +103,7 @@ function addProduct(product) {
   saveCart();
   render();
 }
+
 /* SAVE CART */
 function saveCart() {
   localStorage.setItem("cart", JSON.stringify(items));
@@ -134,12 +132,11 @@ function render() {
 
   items.forEach((item, i) => {
 
-    let itemSubtotal = item.price * item.qty;
-    let itemGST = gstEnabled ? (itemSubtotal * item.gst) / 100 : 0;
+    let itemSub = item.price * item.qty;
+    let itemGST = gstEnabled ? (itemSub * item.gst) / 100 : 0;
+    let itemTotal = itemSub + itemGST;
 
-    let itemTotal = itemSubtotal + itemGST;
-
-    subtotal += itemSubtotal;
+    subtotal += itemSub;
     gstTotal += itemGST;
 
     table.innerHTML += `
@@ -158,13 +155,20 @@ function render() {
     `;
   });
 
-  let total = subtotal + gstTotal;
+  // ✅ ROUND OFF
+  let rawTotal = subtotal + gstTotal;
+  let total = Math.round(rawTotal);
+  let roundOff = total - rawTotal;
 
   document.getElementById("subtotal").innerText = subtotal.toFixed(2);
   document.getElementById("gstTotal").innerText = gstTotal.toFixed(2);
   document.getElementById("total").innerText = total.toFixed(2);
 
-  // ✅ HIDE GST ROW
+  // OPTIONAL (if you add UI element)
+  if (document.getElementById("roundOff")) {
+    document.getElementById("roundOff").innerText = roundOff.toFixed(2);
+  }
+
   document.getElementById("gstRow").style.display =
     gstEnabled ? "block" : "none";
 }
@@ -192,7 +196,7 @@ window.removeItem = (i) => {
   render();
 };
 
-/* CLEAR BILL */
+/* CLEAR */
 window.clearBill = () => {
   if (!confirm("Clear all items?")) return;
 
@@ -221,7 +225,10 @@ window.saveBill = async function () {
     gstTotal += gst;
   });
 
-  let total = subtotal + gstTotal;
+  // ✅ ROUND OFF
+  let rawTotal = subtotal + gstTotal;
+  let roundedTotal = Math.round(rawTotal);
+  let roundOff = roundedTotal - rawTotal;
 
   await addDoc(collection(db, "bills"), {
     invoiceNo: document.getElementById("invNo").innerText,
@@ -230,18 +237,19 @@ window.saveBill = async function () {
     subtotal,
     gst: gstTotal,
     gstEnabled,
-    total,
+    roundOff,
+    total: roundedTotal,
     createdAt: new Date()
   });
 
   alert("Saved ✅");
   clearBill();
 };
-/* PRINT */
+
+/* PRINT NORMAL */
 window.printInvoice = () => {
 
   const customer = document.getElementById("customerName").value;
-
   const gstEnabled = document.getElementById("gstToggle").checked;
 
   let subtotal = 0;
@@ -255,36 +263,37 @@ window.printInvoice = () => {
     gstTotal += gst;
   });
 
-  let total = subtotal + gstTotal;
+  let rawTotal = subtotal + gstTotal;
+  let roundedTotal = Math.round(rawTotal);
 
   const bill = {
     invoiceNo: document.getElementById("invNo").innerText,
     customerName: customer,
     items,
-    total,
+    total: roundedTotal,
     gstEnabled,
     createdAt: new Date()
   };
 
-  const html = getInvoiceHTML(bill, false); // normal invoice
+  const html = getInvoiceHTML(bill, false);
 
   let win = window.open("", "", "width=800,height=600");
   win.document.write(`<body onload="window.print()">${html}</body>`);
 };
 
+/* PRINT THERMAL */
 window.printThermal = () => {
 
   const customer = document.getElementById("customerName").value;
-
   const gstEnabled = document.getElementById("gstToggle").checked;
 
-const bill = {
-  invoiceNo: document.getElementById("invNo").innerText,
-  customerName: customer,
-  items,
-  gstEnabled, // ✅ FIXED
-  createdAt: new Date()
-};
+  const bill = {
+    invoiceNo: document.getElementById("invNo").innerText,
+    customerName: customer,
+    items,
+    gstEnabled,
+    createdAt: new Date()
+  };
 
   const html = getInvoiceHTML(bill, true);
 
