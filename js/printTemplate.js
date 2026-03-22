@@ -1,97 +1,144 @@
 export function getInvoiceHTML(bill, isThermal = false) {
 
-  // ✅ DATE FIX (handles all cases)
-  let date = "";
-  if (bill.createdAt?.seconds) {
-    date = new Date(bill.createdAt.seconds * 1000).toLocaleString();
-  } else if (bill.createdAt) {
-    date = new Date(bill.createdAt).toLocaleString();
-  } else {
-    date = new Date().toLocaleString();
+  // =========================
+  // ✅ DATE FIX
+  // =========================
+  function formatDate(input) {
+    try {
+      if (input?.seconds) return new Date(input.seconds * 1000).toLocaleString("en-IN");
+      if (input) return new Date(input).toLocaleString("en-IN");
+      return new Date().toLocaleString("en-IN");
+    } catch {
+      return new Date().toLocaleString("en-IN");
+    }
   }
 
+  const date = formatDate(bill.createdAt);
+
+  // =========================
+  // ✅ CALCULATIONS
+  // =========================
   let subtotal = 0;
   let gstTotal = 0;
 
-  // ✅ SAFE CALCULATION
-  bill.items.forEach(i => {
-    let price = Number(i.price) || 0;
-    let qty = Number(i.qty) || 0;
-    let gstPercent = Number(i.gst) || 0;
+  const items = bill.items || [];
 
-    let sub = price * qty;
-    let gst = bill.gstEnabled ? (sub * gstPercent) / 100 : 0;
+  items.forEach(i => {
+    const price = Number(i.price) || 0;
+    const qty = Number(i.qty) || 0;
+    const gstPercent = Number(i.gst) || 0;
+
+    const sub = price * qty;
+    const gst = bill.gstEnabled ? (sub * gstPercent) / 100 : 0;
 
     subtotal += sub;
     gstTotal += gst;
   });
 
-  let total = subtotal + gstTotal;
+  const total = subtotal + gstTotal;
 
   // =====================================================
-  // 🧾 THERMAL PRINT (TAMIL SAFE)
+  // 🧾 THERMAL PRINT (58mm / 80mm SAFE)
   // =====================================================
   if (isThermal) {
     return `
     <html>
     <head>
       <meta charset="UTF-8">
+      <title>Print</title>
+
       <style>
         body {
           font-family: 'Noto Sans Tamil', monospace;
           font-size: 12px;
+          width: 260px;
         }
+
+        .center {
+          text-align: center;
+        }
+
+        .row {
+          display: flex;
+          justify-content: space-between;
+        }
+
+        hr {
+          border: none;
+          border-top: 1px dashed #000;
+        }
+
       </style>
+
+      <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Tamil&display=swap" rel="stylesheet">
     </head>
 
-    <body>
-    <div style="width:260px;">
+    <body onload="window.print(); window.close();">
 
-      <center><b>NEW MUGAVAI MANICKAM MALIGAI</b></center>
-      <center>GST No: XXXXXXXXXXXXX</center>
+      <div>
 
-      <p>${date}</p>
+        <div class="center"><b>NEW MUGAVAI MANICKAM MALIGAI</b></div>
+        <div class="center">GST No: XXXXXXXXXXXXX</div>
 
-      <p>Inv: ${bill.invoiceNo || "-"}</p>
-      <p>CUSTOMER: ${bill.customerName || "-"}</p>
+        <br>
 
-      <hr>
+        <div>${date}</div>
+        <div>Inv: ${bill.invoiceNo || "-"}</div>
+        <div>Customer: ${bill.customerName || "-"}</div>
 
-      ${bill.items.map(i => `
-        ${i.name || "-"}<br>
-        ${i.qty || 0} x ₹${i.price || 0}<br>
-      `).join("")}
+        <hr>
 
-      <hr>
+        ${items.map(i => {
+          const price = Number(i.price) || 0;
+          const qty = Number(i.qty) || 0;
+          const gstPercent = Number(i.gst) || 0;
 
-      <b>Subtotal: ₹${subtotal.toFixed(2)}</b><br>
-      ${bill.gstEnabled ? `<b>GST: ₹${gstTotal.toFixed(2)}</b><br>` : ""}
-      <b>Total: ₹${total.toFixed(2)}</b>
+          const sub = price * qty;
+          const gst = bill.gstEnabled ? (sub * gstPercent) / 100 : 0;
+          const total = sub + gst;
 
-      <hr>
+          return `
+            <div>
+              <div>${i.name || "-"}</div>
+              <div class="row">
+                <span>${qty} x ₹${price}</span>
+                <span>₹${total.toFixed(2)}</span>
+              </div>
+            </div>
+          `;
+        }).join("")}
 
-      <center>Thank you 🙏</center>
+        <hr>
 
-    </div>
+        <div class="row"><b>Subtotal</b><b>₹${subtotal.toFixed(2)}</b></div>
+        ${bill.gstEnabled ? `<div class="row"><b>GST</b><b>₹${gstTotal.toFixed(2)}</b></div>` : ""}
+        <div class="row"><b>Total</b><b>₹${total.toFixed(2)}</b></div>
+
+        <hr>
+
+        <div class="center">Thank you 🙏</div>
+
+      </div>
+
     </body>
     </html>
     `;
   }
 
   // =====================================================
-  // 🧾 NORMAL INVOICE (TAMIL + BACKGROUND SUPPORT)
+  // 🧾 NORMAL INVOICE
   // =====================================================
   return `
   <html>
   <head>
     <meta charset="UTF-8">
+    <title>Invoice</title>
 
-    <!-- ✅ TAMIL FONT -->
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Tamil&display=swap" rel="stylesheet">
 
     <style>
       body {
-        font-family: 'Noto Sans Tamil', Arial, sans-serif;
+        font-family: 'Noto Sans Tamil', Arial;
       }
 
       .invoice-box {
@@ -99,7 +146,6 @@ export function getInvoiceHTML(bill, isThermal = false) {
         padding: 20px;
       }
 
-      /* ✅ WATERMARK BACKGROUND */
       .watermark {
         position: absolute;
         top: 30%;
@@ -115,12 +161,12 @@ export function getInvoiceHTML(bill, isThermal = false) {
       }
 
       table {
-        border-collapse: collapse;
         width: 100%;
+        border-collapse: collapse;
         text-align: center;
       }
 
-      table, th, td {
+      th, td {
         border: 1px solid black;
         padding: 6px;
       }
@@ -130,70 +176,62 @@ export function getInvoiceHTML(bill, isThermal = false) {
 
   <body>
 
-  <div class="invoice-box">
+    <div class="invoice-box">
 
-    <!-- ✅ OPTIONAL LOGO WATERMARK -->
-    <!-- Replace with your image -->
-    <img src="logo.png" class="watermark" />
+      <img src="logo.png" class="watermark"/>
 
-    <div class="content">
+      <div class="content">
 
-      <h2 style="text-align:center;">NEW MUGAVAI MANICKAM MALIGAI</h2>
-      <p><b>GST No:</b> XXXXXXXXXXXXX</p>
+        <h2 style="text-align:center;">NEW MUGAVAI MANICKAM MALIGAI</h2>
+        <p><b>GST No:</b> XXXXXXXXXXXXX</p>
 
-      <hr>
+        <hr>
 
-      <p><b>Date:</b> ${date}</p>
-      <p><b>Invoice No:</b> ${bill.invoiceNo || "-"}</p>
-      <p><b>CUSTOMER :</b> ${bill.customerName || "-"}</p>
+        <p><b>Date:</b> ${date}</p>
+        <p><b>Invoice No:</b> ${bill.invoiceNo || "-"}</p>
+        <p><b>Customer:</b> ${bill.customerName || "-"}</p>
 
-      <br>
-
-      <table>
-        <tr>
-          <th>Item's</th>
-          <th>HSN</th>
-          <th>Qty.</th>
-          <th>Price</th>
-          <th>GST %</th>
-          <th>Total</th>
-        </tr>
-
-        ${bill.items.map(i => {
-          let price = Number(i.price) || 0;
-          let qty = Number(i.qty) || 0;
-          let gstPercent = Number(i.gst) || 0;
-
-          let sub = price * qty;
-          let gst = bill.gstEnabled ? (sub * gstPercent) / 100 : 0;
-
-          return `
+        <table>
           <tr>
-            <td>${i.name || "-"}</td>
-            <td>${i.hsn || "-"}</td>
-            <td>${qty}</td>
-            <td>₹${price}</td>
-            <td>${bill.gstEnabled ? gstPercent + "%" : "0%"}</td>
-            <td>₹${(sub + gst).toFixed(2)}</td>
+            <th>Item</th>
+            <th>HSN</th>
+            <th>Qty</th>
+            <th>Price</th>
+            <th>GST</th>
+            <th>Total</th>
           </tr>
-          `;
-        }).join("")}
 
-      </table>
+          ${items.map(i => {
+            const price = Number(i.price) || 0;
+            const qty = Number(i.qty) || 0;
+            const gstPercent = Number(i.gst) || 0;
 
-      <br>
+            const sub = price * qty;
+            const gst = bill.gstEnabled ? (sub * gstPercent) / 100 : 0;
 
-      <p><b>Subtotal:</b> ₹${subtotal.toFixed(2)}</p>
-      ${bill.gstEnabled ? `<p><b>GST:</b> ₹${gstTotal.toFixed(2)}</p>` : ""}
-      <h3>Total: ₹${total.toFixed(2)}</h3>
+            return `
+            <tr>
+              <td>${i.name || "-"}</td>
+              <td>${i.hsn || "-"}</td>
+              <td>${qty}</td>
+              <td>₹${price}</td>
+              <td>${bill.gstEnabled ? gstPercent + "%" : "0%"}</td>
+              <td>₹${(sub + gst).toFixed(2)}</td>
+            </tr>
+            `;
+          }).join("")}
 
-      <br>
+        </table>
 
-      <p style="text-align:center;">Thank you 🙏 Visit Again</p>
+        <p><b>Subtotal:</b> ₹${subtotal.toFixed(2)}</p>
+        ${bill.gstEnabled ? `<p><b>GST:</b> ₹${gstTotal.toFixed(2)}</p>` : ""}
+        <h3>Total: ₹${total.toFixed(2)}</h3>
+
+        <p style="text-align:center;">Thank you 🙏 Visit Again</p>
+
+      </div>
 
     </div>
-
-  </div>
 
   </body>
   </html>
