@@ -276,13 +276,15 @@ window.printThermal = () => {
 
   const customer = document.getElementById("customerName").value;
 
-  const bill = {
-    invoiceNo: document.getElementById("invNo").innerText,
-    customerName: customer,
-    items,
-    total: document.getElementById("total").innerText,
-    createdAt: new Date()
-  };
+  const gstEnabled = document.getElementById("gstToggle").checked;
+
+const bill = {
+  invoiceNo: document.getElementById("invNo").innerText,
+  customerName: customer,
+  items,
+  gstEnabled, // ✅ FIXED
+  createdAt: new Date()
+};
 
   const html = getInvoiceHTML(bill, true);
 
