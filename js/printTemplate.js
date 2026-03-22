@@ -38,7 +38,7 @@ export function getInvoiceHTML(bill, isThermal = false) {
   const total = subtotal + gstTotal;
 
   // =====================================================
-  // 🧾 THERMAL PRINT (58mm / 80mm SAFE)
+  // 🧾 THERMAL PRINT (FINAL VERSION)
   // =====================================================
   if (isThermal) {
     return `
@@ -61,13 +61,27 @@ export function getInvoiceHTML(bill, isThermal = false) {
         .row {
           display: flex;
           justify-content: space-between;
+          font-size: 12px;
+        }
+
+        .col {
+          display: inline-block;
+        }
+
+        .name { width: 30%; text-align: left; }
+        .qty { width: 15%; text-align: center; }
+        .gstp { width: 15%; text-align: center; }
+        .gsta { width: 20%; text-align: right; }
+        .total { width: 20%; text-align: right; }
+
+        .header {
+          font-weight: bold;
         }
 
         hr {
           border: none;
           border-top: 1px dashed #000;
         }
-
       </style>
 
       <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Tamil&display=swap" rel="stylesheet">
@@ -88,6 +102,18 @@ export function getInvoiceHTML(bill, isThermal = false) {
 
         <hr>
 
+        <!-- ✅ HEADER -->
+        <div class="row header">
+          <span class="col name">Item</span>
+          <span class="col qty">Qty</span>
+          <span class="col gstp">GST%</span>
+          <span class="col gsta">GST</span>
+          <span class="col total">Total</span>
+        </div>
+
+        <hr>
+
+        <!-- ✅ ITEMS -->
         ${items.map(i => {
           const price = Number(i.price) || 0;
           const qty = Number(i.qty) || 0;
@@ -98,18 +124,19 @@ export function getInvoiceHTML(bill, isThermal = false) {
           const total = sub + gst;
 
           return `
-            <div>
-              <div>${i.name || "-"}</div>
-              <div class="row">
-                <span>${qty} x ₹${price}</span>
-                <span>₹${total.toFixed(2)}</span>
-              </div>
+            <div class="row">
+              <span class="col name">${i.name || "-"}</span>
+              <span class="col qty">${qty}x${price}</span>
+              <span class="col gstp">${bill.gstEnabled ? gstPercent + "%" : "-"}</span>
+              <span class="col gsta">${bill.gstEnabled ? gst.toFixed(2) : "-"}</span>
+              <span class="col total">₹${total.toFixed(2)}</span>
             </div>
           `;
         }).join("")}
 
         <hr>
 
+        <!-- ✅ TOTALS -->
         <div class="row"><b>Subtotal</b><b>₹${subtotal.toFixed(2)}</b></div>
         ${bill.gstEnabled ? `<div class="row"><b>GST</b><b>₹${gstTotal.toFixed(2)}</b></div>` : ""}
         <div class="row"><b>Total</b><b>₹${total.toFixed(2)}</b></div>
@@ -126,7 +153,7 @@ export function getInvoiceHTML(bill, isThermal = false) {
   }
 
   // =====================================================
-  // 🧾 NORMAL INVOICE
+  // 🧾 NORMAL INVOICE (UNCHANGED + CLEAN)
   // =====================================================
   return `
   <html>
@@ -170,7 +197,6 @@ export function getInvoiceHTML(bill, isThermal = false) {
         border: 1px solid black;
         padding: 6px;
       }
-
     </style>
   </head>
 
