@@ -74,3 +74,21 @@ button:hover {
 table {
   box-shadow: 0 0 10px rgba(0,0,0,0.1);
 }
+
+/* GLOBAL BACKGROUND */
+body {
+  margin: 0;
+  padding: 0;
+
+  background: url("./assets/bg.jpg") no-repeat center center fixed;
+  background-size: cover;
+
+  font-family: Arial, sans-serif;
+}
+
+/* OPTIONAL: GLASS EFFECT FOR CONTENT */
+.container {
+  background: rgba(255, 255, 255, 0.85);
+  padding: 15px;
+  border-radius: 10px;
+}
