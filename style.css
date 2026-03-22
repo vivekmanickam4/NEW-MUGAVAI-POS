@@ -80,7 +80,7 @@ body {
   margin: 0;
   padding: 0;
 
-  background: url("./assets/bg.JPEG") no-repeat center center fixed;
+  background: url("./assets/bg.JPG") no-repeat center center fixed;
   background-size: cover;
 
   font-family: Arial, sans-serif;
@@ -91,4 +91,16 @@ body {
   background: rgba(255, 255, 255, 0.85);
   padding: 15px;
   border-radius: 10px;
+}
+
+button {
+  background: #2e7d32;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 6px;
+}
+
+button:hover {
+  background: #1b5e20;
 }
